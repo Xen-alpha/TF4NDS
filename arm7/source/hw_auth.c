@@ -1,4 +1,4 @@
-#include <nds\ndstypes.h>
+#include <nds/ndstypes.h>
 #include "hw.h"
 #include "802.11.h"
 #include "wifi_state.h"

@@ -1,5 +1,5 @@
-#include <nds\interrupts.h>
-#include <nds\fifocommon.h>
+#include <nds/interrupts.h>
+#include <nds/fifocommon.h>
 #include "hw.h"
 #include "802.11.h"
 #include "wifi_state.h"

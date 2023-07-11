@@ -36,8 +36,8 @@
 #ifndef _CACHE_H
 #define _CACHE_H
 
-#include "fat\common.h"
-#include "fat\disc_io\disc.h"
+#include <fat/common.h>
+#include <fat/disc_io/disc.h>
 
 #define CACHE_PAGE_SIZE BYTES_PER_READ
 

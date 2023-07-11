@@ -41,7 +41,7 @@ static int			lowshift;
 #include <fat.h>
 //#include "IPCFifo.h"
 #include "cyg-profile.h"
-#include "fat\partition.h"
+#include <fat/partition.h>
 //#include "nds/arm9/dldi.h"
 #include <sys/stat.h>
 #include <dirent.h>

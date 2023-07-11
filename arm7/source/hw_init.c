@@ -1,7 +1,7 @@
 #include <nds.h>
 #include "hw.h"
 #include "wifi_state.h"
-#include <nds\arm7\serial.h>
+#include <nds/arm7/serial.h>
 
 int chdata_save5 = 0;
 

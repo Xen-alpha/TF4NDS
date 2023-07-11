@@ -30,8 +30,8 @@
 #ifndef _PARTITION_H
 #define _PARTITION_H
 
-#include "fat\common.h"
-#include "fat\cache.h"
+#include <fat/common.h>
+#include <fat/cache.h>
 //#include "lock.h"
 
 #ifdef __cplusplus
