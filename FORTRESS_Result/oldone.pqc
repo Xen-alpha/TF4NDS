@@ -1,0 +1,534 @@
+
+void () finale_1;
+
+void () finale_2;
+
+void () finale_3;
+
+void () finale_4;
+entity shub;
+
+void () old_idle1 = [ 0.000, old_idle2 ] {
+
+
+};
+
+void () old_idle2 = [ 1.000, old_idle3 ] {
+
+
+};
+
+void () old_idle3 = [ 2.000, old_idle4 ] {
+
+
+};
+
+void () old_idle4 = [ 3.000, old_idle5 ] {
+
+
+};
+
+void () old_idle5 = [ 4.000, old_idle6 ] {
+
+
+};
+
+void () old_idle6 = [ 5.000, old_idle7 ] {
+
+
+};
+
+void () old_idle7 = [ 6.000, old_idle8 ] {
+
+
+};
+
+void () old_idle8 = [ 7.000, old_idle9 ] {
+
+
+};
+
+void () old_idle9 = [ 8.000, old_idle10 ] {
+
+
+};
+
+void () old_idle10 = [ 9.000, old_idle11 ] {
+
+
+};
+
+void () old_idle11 = [ 10.000, old_idle12 ] {
+
+
+};
+
+void () old_idle12 = [ 11.000, old_idle13 ] {
+
+
+};
+
+void () old_idle13 = [ 12.000, old_idle14 ] {
+
+
+};
+
+void () old_idle14 = [ 13.000, old_idle15 ] {
+
+
+};
+
+void () old_idle15 = [ 14.000, old_idle16 ] {
+
+
+};
+
+void () old_idle16 = [ 15.000, old_idle17 ] {
+
+
+};
+
+void () old_idle17 = [ 16.000, old_idle18 ] {
+
+
+};
+
+void () old_idle18 = [ 17.000, old_idle19 ] {
+
+
+};
+
+void () old_idle19 = [ 18.000, old_idle20 ] {
+
+
+};
+
+void () old_idle20 = [ 19.000, old_idle21 ] {
+
+
+};
+
+void () old_idle21 = [ 20.000, old_idle22 ] {
+
+
+};
+
+void () old_idle22 = [ 21.000, old_idle23 ] {
+
+
+};
+
+void () old_idle23 = [ 22.000, old_idle24 ] {
+
+
+};
+
+void () old_idle24 = [ 23.000, old_idle25 ] {
+
+
+};
+
+void () old_idle25 = [ 24.000, old_idle26 ] {
+
+
+};
+
+void () old_idle26 = [ 25.000, old_idle27 ] {
+
+
+};
+
+void () old_idle27 = [ 26.000, old_idle28 ] {
+
+
+};
+
+void () old_idle28 = [ 27.000, old_idle29 ] {
+
+
+};
+
+void () old_idle29 = [ 28.000, old_idle30 ] {
+
+
+};
+
+void () old_idle30 = [ 29.000, old_idle31 ] {
+
+
+};
+
+void () old_idle31 = [ 30.000, old_idle32 ] {
+
+
+};
+
+void () old_idle32 = [ 31.000, old_idle33 ] {
+
+
+};
+
+void () old_idle33 = [ 32.000, old_idle34 ] {
+
+
+};
+
+void () old_idle34 = [ 33.000, old_idle35 ] {
+
+
+};
+
+void () old_idle35 = [ 34.000, old_idle36 ] {
+
+
+};
+
+void () old_idle36 = [ 35.000, old_idle37 ] {
+
+
+};
+
+void () old_idle37 = [ 36.000, old_idle38 ] {
+
+
+};
+
+void () old_idle38 = [ 37.000, old_idle39 ] {
+
+
+};
+
+void () old_idle39 = [ 38.000, old_idle40 ] {
+
+
+};
+
+void () old_idle40 = [ 39.000, old_idle41 ] {
+
+
+};
+
+void () old_idle41 = [ 40.000, old_idle42 ] {
+
+
+};
+
+void () old_idle42 = [ 41.000, old_idle43 ] {
+
+
+};
+
+void () old_idle43 = [ 42.000, old_idle44 ] {
+
+
+};
+
+void () old_idle44 = [ 43.000, old_idle45 ] {
+
+
+};
+
+void () old_idle45 = [ 44.000, old_idle46 ] {
+
+
+};
+
+void () old_idle46 = [ 45.000, old_idle1 ] {
+
+
+};
+
+void () old_thrash1 = [ 46.000, old_thrash2 ] {
+
+   lightstyle (0.000,"m");
+
+};
+
+void () old_thrash2 = [ 47.000, old_thrash3 ] {
+
+   lightstyle (0.000,"k");
+
+};
+
+void () old_thrash3 = [ 48.000, old_thrash4 ] {
+
+   lightstyle (0.000,"k");
+
+};
+
+void () old_thrash4 = [ 49.000, old_thrash5 ] {
+
+   lightstyle (0.000,"i");
+
+};
+
+void () old_thrash5 = [ 50.000, old_thrash6 ] {
+
+   lightstyle (0.000,"g");
+
+};
+
+void () old_thrash6 = [ 51.000, old_thrash7 ] {
+
+   lightstyle (0.000,"e");
+
+};
+
+void () old_thrash7 = [ 52.000, old_thrash8 ] {
+
+   lightstyle (0.000,"c");
+
+};
+
+void () old_thrash8 = [ 53.000, old_thrash9 ] {
+
+   lightstyle (0.000,"a");
+
+};
+
+void () old_thrash9 = [ 54.000, old_thrash10 ] {
+
+   lightstyle (0.000,"c");
+
+};
+
+void () old_thrash10 = [ 55.000, old_thrash11 ] {
+
+   lightstyle (0.000,"e");
+
+};
+
+void () old_thrash11 = [ 56.000, old_thrash12 ] {
+
+   lightstyle (0.000,"g");
+
+};
+
+void () old_thrash12 = [ 57.000, old_thrash13 ] {
+
+   lightstyle (0.000,"i");
+
+};
+
+void () old_thrash13 = [ 59.000, old_thrash14 ] {
+
+   lightstyle (0.000,"k");
+
+};
+
+void () old_thrash14 = [ 60.000, old_thrash15 ] {
+
+   lightstyle (0.000,"m");
+
+};
+
+void () old_thrash15 = [ 61.000, old_thrash16 ] {
+
+   lightstyle (0.000,"m");
+   self.cnt = (self.cnt + 1.000);
+   if ( (self.cnt != 3.000) ) {
+
+      self.think = old_thrash1;
+
+   }
+
+};
+
+void () old_thrash16 = [ 62.000, old_thrash17 ] {
+
+   lightstyle (0.000,"g");
+
+};
+
+void () old_thrash17 = [ 63.000, old_thrash18 ] {
+
+   lightstyle (0.000,"c");
+
+};
+
+void () old_thrash18 = [ 64.000, old_thrash19 ] {
+
+   lightstyle (0.000,"b");
+
+};
+
+void () old_thrash19 = [ 65.000, old_thrash20 ] {
+
+   lightstyle (0.000,"a");
+
+};
+
+void () old_thrash20 = [ 66.000, old_thrash20 ] {
+
+   finale_4 ();
+
+};
+
+void () finale_1 = {
+
+   local entity pos;
+   local entity pl;
+   local entity timer;
+
+   intermission_exittime = (time + 10000000.000);
+   intermission_running = 1.000;
+   pos = find (world,classname,"info_intermission");
+   if ( !pos ) {
+
+      error ("no info_intermission");
+
+   }
+   pl = find (world,classname,"misc_teleporttrain");
+   if ( !pl ) {
+
+      error ("no teleporttrain");
+
+   }
+   remove (pl);
+   WriteByte (2.000,31.000);
+   WriteString (2.000,"");
+   pl = find (world,classname,"player");
+   while ( (pl != world) ) {
+
+      pl.view_ofs = '0.000 0.000 0.000';
+      shub.v_angle = pos.mangle;
+      pl.angles = pos.mangle;
+      pl.fixangle = 1.000;
+      pl.map = self.map;
+      pl.nextthink = (time + 0.500);
+      pl.takedamage = 0.000;
+      pl.solid = 0.000;
+      pl.movetype = 0.000;
+      pl.modelindex = 0.000;
+      setorigin (pl,pos.origin);
+      pl = find (pl,classname,"player");
+
+   }
+   timer = spawn ();
+   timer.nextthink = (time + 1.000);
+   timer.think = finale_2;
+
+};
+
+void () finale_2 = {
+
+   local vector o;
+
+   o = (shub.origin - '0.000 100.000 0.000');
+   WriteByte (0.000,23.000);
+   WriteByte (0.000,11.000);
+   WriteCoord (0.000,o_x);
+   WriteCoord (0.000,o_y);
+   WriteCoord (0.000,o_z);
+   sound (shub,2.000,"misc/r_tele1.wav",1.000,1.000);
+   self.nextthink = (time + 2.000);
+   self.think = finale_3;
+
+};
+
+void () finale_3 = {
+
+   shub.think = old_thrash1;
+   sound (shub,2.000,"boss2/death.wav",1.000,1.000);
+   lightstyle (0.000,"abcdefghijklmlkjihgfedcb");
+
+};
+
+void () finale_4 = {
+
+   local vector oldo;
+   local float x;
+   local float y;
+   local float z;
+   local float r;
+   local entity n;
+
+   sound (self,2.000,"boss2/pop2.wav",1.000,1.000);
+   oldo = self.origin;
+   z = 16.000;
+   while ( (z <= 144.000) ) {
+
+      x = -64.000;
+      while ( (x <= 64.000) ) {
+
+         y = -64.000;
+         while ( (y <= 64.000) ) {
+
+            self.origin_x = (oldo_x + x);
+            self.origin_y = (oldo_y + y);
+            self.origin_z = (oldo_z + z);
+            r = random ();
+            if ( (r < 0.300) ) {
+
+               ThrowGib ("progs/gib1.mdl",-999.000);
+
+            } else {
+
+               if ( (r < 0.600) ) {
+
+                  ThrowGib ("progs/gib2.mdl",-999.000);
+
+               } else {
+
+                  ThrowGib ("progs/gib3.mdl",-999.000);
+
+               }
+
+            }
+            y = (y + 32.000);
+
+         }
+         x = (x + 32.000);
+
+      }
+      z = (z + 96.000);
+
+   }
+   WriteByte (2.000,31.000);
+   WriteString (2.000,"Congratulations and well done! You have\nbeaten the hideous Shub-Niggurath, and\nher hundreds of ugly changelings and\nmonsters. You have proven that your\nskill and your cunning are greater than\nall the powers of Quake. You are the\nmaster now. Id S...");
+   n = spawn ();
+   setmodel (n,"progs/player.mdl");
+   oldo = (oldo - '32.000 264.000 0.000');
+   setorigin (n,oldo);
+   n.angles = '0.000 290.000 0.000';
+   n.frame = 1.000;
+   remove (self);
+   WriteByte (2.000,32.000);
+   WriteByte (2.000,3.000);
+   WriteByte (2.000,3.000);
+   lightstyle (0.000,"m");
+
+};
+
+void () monster_oldone = {
+
+   if ( (CheckExistence () == 0.000) ) {
+
+      dremove (self);
+      return ;
+
+   }
+   if ( deathmatch ) {
+
+      dremove (self);
+      return ;
+
+   }
+   precache_model2 ("progs/oldone.mdl");
+   precache_sound2 ("boss2/death.wav");
+   precache_sound2 ("boss2/idle.wav");
+   precache_sound2 ("boss2/sight.wav");
+   precache_sound2 ("boss2/pop2.wav");
+   self.solid = 3.000;
+   self.movetype = 4.000;
+   setmodel (self,"progs/oldone.mdl");
+   setsize (self,'-160.000 -128.000 -24.000','160.000 128.000 256.000');
+   self.health = 40000.000;
+   self.think = old_idle1;
+   self.nextthink = (time + 0.100);
+   self.takedamage = 1.000;
+   self.th_die = finale_1;
+   shub = self;
+   total_monsters = (total_monsters + 1.000);
+
+};

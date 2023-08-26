@@ -13,10 +13,10 @@ export TOPDIR	:=	$(CURDIR)
 NITRO_FILES	:=
 
 # These set the information text in the nds file
-GAME_TITLE     := cnquake
-GAME_SUBTITLE1 := quake port for the ds/dsi
+GAME_TITLE     := TF4NDS
+GAME_SUBTITLE1 := Quake World Team Fortress port for NDS
 GAME_SUBTITLE2 := local multiplayer version
-GAME_ICON := cnquake.bmp
+GAME_ICON := TF4NDS.bmp
 
 include $(DEVKITARM)/ds_rules
 

@@ -17,8 +17,9 @@ include $(DEVKITARM)/ds_rules
 FNET		:=	../fnet_stack
 HELIX		:=	../helix
 BUILD		:=	build
-SOURCES		:=	clock dsnifi nullrender client console host misc network progs render server sound $(HELIX)/ds/arm9/source \
+SOURCES		:=	startup $(HELIX)/ds/arm9/source \
 				$(FNET)/cpu $(FNET)/cpu/arm $(FNET)/stack $(FNET)/services/poll $(FNET)/services/dhcp
+# clock dsnifi nullrender client console host misc network progs render server sound
 INCLUDES	:=	include ../common $(HELIX)/fixpt/pub   $(HELIX)/ds/common/include ../common/include \
 				$(FNET) $(FNET)/compiler $(FNET)/cpu/arm $(FNET)/cpu \
 				$(FNET)/os $(FNET)/stack $(FNET)/services $(FNET)/services/ping \
@@ -37,7 +38,7 @@ CFLAGS	:=	-g -Wall -O2\
 			$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -DARM9 -DNDS -DBYTE_DEFINED -DARM
-CFLAGS	+=  -DUSE_DSNIFI
+# CFLAGS	+=  -DUSE_DSNIFI
 
 CXXFLAGS	:=	$(CFLAGS) -fno-rtti -fno-exceptions
 
@@ -48,8 +49,8 @@ LDFLAGS	=	-specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lfat -lnds9 -lm
- 
+LIBS	:=	 -lnds9 -lm
+# LIBS	+= -lfat
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib

@@ -1,0 +1,896 @@
+
+void () NapalmGrenadeTouch;
+
+void (vector org, entity shooter) NapalmGrenadeLaunch;
+
+void () Napalm_touch;
+float (string id_flame) RemoveFlameFromQueue;
+(null) (string type, entity p_owner) FlameSpawn = {
+
+   if ( (cb_prematch_time > time) ) {
+
+      return ( world );
+
+   }
+   num_world_flames = (num_world_flames + 1.000);
+   while ( (num_world_flames > 60.000) ) {
+
+      if ( !RemoveFlameFromQueue (type) ) {
+
+         return ;
+
+      }
+
+   }
+   newmis = spawn ();
+   if ( (type == "1") ) {
+
+      newmis.movetype = 9.000;
+      newmis.solid = 2.000;
+      newmis.effects = 8.000;
+      newmis.flame_id = "1";
+      setmodel (newmis,"progs/flame2.mdl");
+      setsize (newmis,'0.000 0.000 0.000','0.000 0.000 0.000');
+
+   } else {
+
+      if ( (type == "2") ) {
+
+         newmis.movetype = 10.000;
+         newmis.solid = 2.000;
+         newmis.flame_id = "2";
+         setmodel (newmis,"progs/flame2.mdl");
+         newmis.frame = 1.000;
+         setsize (newmis,'0.000 0.000 0.000','0.000 0.000 0.000');
+
+      } else {
+
+         if ( (type == "3") ) {
+
+            newmis.movetype = 9.000;
+            newmis.solid = 2.000;
+            newmis.flame_id = "3";
+            setmodel (newmis,"progs/flame2.mdl");
+            setsize (newmis,'0.000 0.000 0.000','0.000 0.000 0.000');
+
+         } else {
+
+            if ( (type == "4") ) {
+
+               newmis.movetype = 9.000;
+               newmis.flame_id = "4";
+               newmis.frame = 1.000;
+               newmis.solid = 2.000;
+               setmodel (newmis,"progs/flame2.mdl");
+               setsize (newmis,'0.000 0.000 0.000','0.000 0.000 0.000');
+
+            }
+
+         }
+
+      }
+
+   }
+   newmis.owner = p_owner;
+   return ( newmis );
+
+};
+
+void (entity this) FlameDestroy = {
+
+   num_world_flames = (num_world_flames - 1.000);
+   dremove (this);
+
+};
+float (string id_flame) RemoveFlameFromQueue = {
+
+   local entity tmp;
+
+   if ( (num_world_flames < 60.000) ) {
+
+      dprint ("ERROR in RemoveFlameFromQueue\n");
+      return ;
+
+   }
+   num_world_flames = (num_world_flames - 1.000);
+   tmp = find (world,flame_id,"4");
+   if ( !tmp ) {
+
+      if ( (id_flame == "4") ) {
+
+         return ( 0.000 );
+
+      }
+      tmp = find (world,flame_id,"3");
+      if ( !tmp ) {
+
+         if ( (id_flame == "3") ) {
+
+            return ( 0.000 );
+
+         }
+         tmp = find (world,flame_id,"2");
+         if ( !tmp ) {
+
+            if ( (id_flame == "2") ) {
+
+               return ( 0.000 );
+
+            }
+            tmp = find (world,flame_id,"1");
+            if ( !tmp ) {
+
+               dprint ("\n\nRemoveFlameFromQueue():BOOM!\n");
+               return ( 0.000 );
+
+            }
+
+         }
+
+      }
+
+   }
+   remove (tmp);
+   return ( 1.000 );
+
+};
+
+void () Remove = {
+
+   FlameDestroy (self);
+
+};
+
+void () NapalmGrenadeFollow = {
+
+   traceline (self.origin,self.origin,1.000,self);
+   if ( (trace_inwater == 1.000) ) {
+
+      sound (self,2.000,"misc/vapeur2.wav",1.000,1.000);
+      FlameDestroy (self);
+
+   }
+   if ( (self.velocity == '0.000 0.000 0.000') ) {
+
+      FlameDestroy (self);
+
+   }
+   self.nextthink = (time + 0.100);
+
+};
+
+void () NapalmGrenadeTouch = {
+
+   sound (self,1.000,"weapons/bounce.wav",1.000,1.000);
+   if ( (self.velocity == '0.000 0.000 0.000') ) {
+
+      self.avelocity = '0.000 0.000 0.000';
+
+   }
+
+};
+
+void () NapalmGrenadeNetThink = {
+
+   local entity head;
+
+   self.nextthink = (time + 1.000);
+   head = findradius (self.origin,180.000);
+   while ( head ) {
+
+      if ( head.takedamage ) {
+
+         deathmsg = 15.000;
+         TF_T_Damage (head,self,self.owner,20.000,2.000,16.000);
+         other = head;
+         Napalm_touch ();
+         if ( (other.classname == "player") ) {
+
+            stuffcmd (other,"bf\nbf\n");
+
+         }
+
+      }
+      head = head.chain;
+
+   }
+   WriteByte (0.000,23.000);
+   WriteByte (0.000,3.000);
+   WriteCoord (0.000,self.origin_x);
+   WriteCoord (0.000,self.origin_y);
+   WriteCoord (0.000,self.origin_z);
+   self.heat = (self.heat + 1.000);
+   if ( (self.heat > 7.000) ) {
+
+      dremove (self.enemy);
+      dremove (self);
+
+   }
+
+};
+
+void () NapalmGrenadeExplode = {
+
+   local float i;
+
+   sound (self,0.000,"weapons/flmgrexp.wav",1.000,1.000);
+   traceline (self.origin,self.origin,1.000,self);
+   if ( (trace_inwater == 1.000) ) {
+
+      dremove (self);
+      return ;
+
+   }
+   deathmsg = 15.000;
+   T_RadiusDamage (self,self.owner,20.000,world);
+   i = 0.000;
+   while ( (i < 15.000) ) {
+
+      NapalmGrenadeLaunch ((self.origin + '0.000 0.000 5.000'),self.owner);
+      i = (i + 1.000);
+
+   }
+   self.solid = 0.000;
+   BecomeExplosion ();
+
+};
+
+void (vector org, entity shooter) NapalmGrenadeLaunch = {
+
+   local float xdir;
+   local float ydir;
+   local float zdir;
+   local float spin;
+
+   xdir = ((150.000 * random ()) - 75.000);
+   ydir = ((150.000 * random ()) - 75.000);
+   zdir = (40.000 * random ());
+   newmis = FlameSpawn ("2",shooter);
+   if ( (newmis == world) ) {
+
+      return ;
+
+   }
+   self.touch = SUB_Null;
+   newmis.classname = "fire";
+   newmis.touch = Napalm_touch;
+   newmis.think = NapalmGrenadeFollow;
+   newmis.nextthink = (time + 0.100);
+   newmis.enemy = shooter.owner;
+   newmis.velocity_x = (xdir * 2.000);
+   newmis.velocity_y = (ydir * 2.000);
+   newmis.velocity_z = (zdir * 15.000);
+   spin = ((random () * 10.000) / 2.000);
+   if ( (spin <= 0.000) ) {
+
+      newmis.avelocity = '250.000 300.000 400.000';
+
+   }
+   if ( (spin == 1.000) ) {
+
+      newmis.avelocity = '400.000 250.000 300.000';
+
+   }
+   if ( (spin == 2.000) ) {
+
+      newmis.avelocity = '300.000 400.000 250.000';
+
+   }
+   if ( (spin == 3.000) ) {
+
+      newmis.avelocity = '300.000 300.000 300.000';
+
+   }
+   if ( (spin >= 4.000) ) {
+
+      newmis.avelocity = '400.000 250.000 400.000';
+
+   }
+   setorigin (newmis,org);
+   setsize (newmis,'0.000 0.000 0.000','0.000 0.000 0.000');
+
+};
+
+void () OnPlayerFlame_touch;
+
+void () FlameFollow = {
+
+   local vector dir;
+   local vector vtemp;
+   local vector boundsize;
+   local float damage;
+
+   vtemp = self.enemy.absmin;
+   boundsize = self.enemy.size;
+   self.solid = 0.000;
+   self.movetype = 0.000;
+   if ( (self.enemy.numflames == 0.000) ) {
+
+      FlameDestroy (self);
+      return ;
+
+   }
+   if ( (self.enemy.health < 1.000) ) {
+
+      deathmsg = 15.000;
+      T_RadiusDamage (self,self,10.000,self);
+      self.enemy.numflames = 0.000;
+      FlameDestroy (self);
+      return ;
+
+   }
+   if ( ((self.enemy.armorclass & 16.000) && (self.enemy.armorvalue > 0.000)) ) {
+
+      self.health = 0.000;
+
+   }
+   if ( (self.enemy.tfstate & 131072.000) ) {
+
+      self.health = 45.000;
+      self.enemy.tfstate = (self.enemy.tfstate - (self.enemy.tfstate & 131072.000));
+
+   }
+   if ( (self.health < 1.000) ) {
+
+      if ( ((self.effects != 8.000) || (self.enemy.numflames <= 1.000)) ) {
+
+         self.enemy.numflames = (self.enemy.numflames - 1.000);
+         self.enemy.numflames = 0.000;
+         FlameDestroy (self);
+         return ;
+
+      }
+
+   }
+   self.health = (self.health - 1.000);
+   dir_x = (((random () * boundsize_x) / 2.000) + (boundsize_x / 4.000));
+   dir_y = (((random () * boundsize_y) / 2.000) + (boundsize_y / 4.000));
+   dir_z = (((random () * boundsize_z) / 3.000) + (boundsize_z / 2.000));
+   vtemp = (vtemp + dir);
+   setorigin (self,vtemp);
+   if ( (self.enemy.waterlevel > 1.000) ) {
+
+      sound (self,2.000,"misc/vapeur2.wav",1.000,1.000);
+      self.enemy.numflames = (self.enemy.numflames - 1.000);
+      FlameDestroy (self);
+      return ;
+
+   }
+   self.nextthink = (time + 0.100);
+   if ( ((self.effects == 8.000) && (self.heat >= 3.000)) ) {
+
+      damage = ((self.enemy.numflames * 0.300) * 3.000);
+      if ( (damage < 1.000) ) {
+
+         damage = 1.000;
+
+      }
+      self.heat = 1.000;
+      deathmsg = 15.000;
+      TF_T_Damage (self.enemy,self,self.owner,damage,2.000,16.000);
+
+   } else {
+
+      if ( (self.effects == 8.000) ) {
+
+         self.heat = (self.heat + 1.000);
+
+      }
+
+   }
+
+};
+
+void () OnPlayerFlame_touch = {
+
+   local entity flame;
+   local vector vtemp;
+
+   if ( (((other != world) && (other.health > 0.000)) && (other != self.enemy)) ) {
+
+      if ( (cb_prematch_time > time) ) {
+
+         return ;
+
+      }
+      if ( (other.numflames >= 4.000) ) {
+
+         other.tfstate = (other.tfstate | 131072.000);
+         return ;
+
+      }
+      if ( (other.classname == "player") ) {
+
+         if ( (((teamplay & 16.000) && (other.team_no > 0.000)) && (other.team_no == self.owner.team_no)) ) {
+
+            return ;
+
+         }
+         CenterPrint (other,"You are on fire!\n");
+         stuffcmd (other,"bf\n");
+
+      }
+      if ( (other.numflames < 1.000) ) {
+
+         flame = FlameSpawn ("1",other);
+         sound (flame,2.000,"ambience/fire1.wav",1.000,1.000);
+
+      } else {
+
+         flame = FlameSpawn ("3",other);
+         if ( (flame == world) ) {
+
+            return ;
+
+         }
+
+      }
+      flame.classname = "fire";
+      flame.health = 45.000;
+      other.numflames = (other.numflames + 1.000);
+      flame.velocity = other.velocity;
+      flame.enemy = other;
+      flame.touch = OnPlayerFlame_touch;
+      flame.owner = self.owner;
+      vtemp = self.origin;
+      setorigin (flame,vtemp);
+      flame.nextthink = (time + 0.100);
+      flame.think = FlameFollow;
+
+   }
+
+};
+
+void () WorldFlame_touch = {
+
+   local entity flame;
+   local vector dir;
+   local vector vtemp;
+
+   deathmsg = 15.000;
+   TF_T_Damage (other,self,self.enemy,2.000,2.000,16.000);
+   if ( (((other != world) && (other.solid != 1.000)) && (other.health > 0.000)) ) {
+
+      if ( (cb_prematch_time > time) ) {
+
+         return ;
+
+      }
+      if ( (other.numflames >= 4.000) ) {
+
+         other.tfstate = (other.tfstate | 131072.000);
+         return ;
+
+      }
+      if ( (other.classname == "player") ) {
+
+         if ( (((teamplay & 16.000) && (other.team_no > 0.000)) && (other.team_no == self.owner.team_no)) ) {
+
+            return ;
+
+         }
+         CenterPrint (other,"You are on fire!\n");
+         stuffcmd (other,"bf\n");
+
+      }
+      if ( (other.numflames < 1.000) ) {
+
+         flame = FlameSpawn ("1",other);
+         sound (flame,2.000,"ambience/fire1.wav",1.000,1.000);
+
+      } else {
+
+         flame = FlameSpawn ("3",other);
+         if ( (flame == world) ) {
+
+            return ;
+
+         }
+
+      }
+      flame.classname = "fire";
+      flame.health = 0.000;
+      other.numflames = (other.numflames + 1.000);
+      flame.velocity = other.velocity;
+      flame.enemy = other;
+      flame.touch = OnPlayerFlame_touch;
+      flame.owner = self.owner;
+      vtemp = (self.origin + '0.000 0.000 10.000');
+      setorigin (flame,vtemp);
+      flame.nextthink = (time + 0.150);
+      flame.think = FlameFollow;
+
+   }
+
+};
+
+void () Flamer_stream_touch = {
+
+   local entity flame;
+   local vector dir;
+   local vector vtemp;
+
+   if ( (other.classname == "fire") ) {
+
+      return ;
+
+   }
+   if ( (other != world) ) {
+
+      if ( ((other.takedamage == 2.000) && (other.health > 0.000)) ) {
+
+         deathmsg = 15.000;
+         TF_T_Damage (other,self,self.owner,10.000,2.000,16.000);
+         if ( (cb_prematch_time > time) ) {
+
+            return ;
+
+         }
+         if ( (other.numflames >= 4.000) ) {
+
+            other.tfstate = (other.tfstate | 131072.000);
+            return ;
+
+         }
+         if ( ((other.armorclass & 16.000) && (other.armorvalue > 0.000)) ) {
+
+            return ;
+
+         }
+         if ( (other.classname == "player") ) {
+
+            if ( (((teamplay & 16.000) && (other.team_no > 0.000)) && (other.team_no == self.owner.team_no)) ) {
+
+               return ;
+
+            }
+            CenterPrint (other,"You are on fire!\n");
+            stuffcmd (other,"bf\n");
+
+         }
+         if ( (other.numflames < 1.000) ) {
+
+            flame = FlameSpawn ("1",other);
+            sound (flame,2.000,"ambience/fire1.wav",1.000,1.000);
+
+         } else {
+
+            flame = FlameSpawn ("3",other);
+            if ( (flame == world) ) {
+
+               return ;
+
+            }
+
+         }
+         flame.classname = "fire";
+         flame.health = 45.000;
+         other.numflames = (other.numflames + 1.000);
+         flame.velocity = other.velocity;
+         flame.enemy = other;
+         flame.touch = OnPlayerFlame_touch;
+         flame.owner = self.owner;
+         vtemp = self.origin;
+         setorigin (flame,vtemp);
+         flame.nextthink = (time + 0.100);
+         flame.think = FlameFollow;
+
+      }
+
+   } else {
+
+      if ( ((random () < 0.300) || (pointcontents ((self.origin + '0.000 0.000 1.000')) != -1.000)) ) {
+
+         remove (self);
+         return ;
+
+      }
+      flame = FlameSpawn ("4",other);
+      if ( (flame != world) ) {
+
+         flame.touch = WorldFlame_touch;
+         flame.classname = "fire";
+         vtemp = (self.origin + '0.000 0.000 10.000');
+         setorigin (flame,vtemp);
+         flame.nextthink = (time + 8.000);
+         flame.heat = flame.nextthink;
+         flame.think = Remove;
+         flame.enemy = self.owner;
+
+      }
+      remove (self);
+
+   }
+
+};
+
+void () Napalm_touch = {
+
+   local entity flame;
+   local vector dir;
+   local vector vtemp;
+
+   if ( (other.classname == "fire") ) {
+
+      return ;
+
+   }
+   if ( (other != world) ) {
+
+      if ( ((other.takedamage == 2.000) && (other.health > 0.000)) ) {
+
+         deathmsg = 15.000;
+         TF_T_Damage (other,self,self.owner,6.000,2.000,16.000);
+         if ( (cb_prematch_time > time) ) {
+
+            return ;
+
+         }
+         if ( (other.numflames >= 4.000) ) {
+
+            other.tfstate = (other.tfstate | 131072.000);
+            return ;
+
+         }
+         if ( ((other.armorclass & 16.000) && (other.armorvalue > 0.000)) ) {
+
+            return ;
+
+         }
+         if ( (other.classname == "player") ) {
+
+            if ( (((teamplay & 16.000) && (other.team_no > 0.000)) && (other.team_no == self.owner.team_no)) ) {
+
+               return ;
+
+            }
+            CenterPrint (other,"You are on fire!\n");
+            stuffcmd (other,"bf\n");
+
+         }
+         if ( (other.numflames < 1.000) ) {
+
+            flame = FlameSpawn ("1",other);
+            sound (flame,2.000,"ambience/fire1.wav",1.000,1.000);
+
+         } else {
+
+            flame = FlameSpawn ("3",other);
+            if ( (flame == world) ) {
+
+               return ;
+
+            }
+
+         }
+         flame.classname = "fire";
+         flame.health = 45.000;
+         other.numflames = (other.numflames + 1.000);
+         flame.velocity = other.velocity;
+         flame.enemy = other;
+         flame.touch = OnPlayerFlame_touch;
+         flame.owner = self.owner;
+         vtemp = self.origin;
+         setorigin (flame,vtemp);
+         flame.nextthink = (time + 0.100);
+         flame.think = FlameFollow;
+
+      }
+
+   } else {
+
+      if ( (pointcontents ((self.origin + '0.000 0.000 1.000')) != -1.000) ) {
+
+         FlameDestroy (self);
+         return ;
+
+      }
+      flame = FlameSpawn ("4",other);
+      if ( (flame != world) ) {
+
+         flame.touch = WorldFlame_touch;
+         flame.classname = "fire";
+         vtemp = (self.origin + '0.000 0.000 10.000');
+         setorigin (flame,vtemp);
+         flame.nextthink = (time + 20.000);
+         flame.heat = flame.nextthink;
+         flame.think = Remove;
+         flame.enemy = self.owner;
+
+      }
+      FlameDestroy (self);
+
+   }
+
+};
+
+void (float num_bubbles, vector bub_origin) NewBubbles = {
+
+   local entity bubble_spawner;
+
+   bubble_spawner = spawn ();
+   setorigin (bubble_spawner,bub_origin);
+   bubble_spawner.movetype = 0.000;
+   bubble_spawner.solid = 0.000;
+   bubble_spawner.nextthink = (time + 0.100);
+   if ( (self.classname == "player") ) {
+
+      bubble_spawner.owner = self;
+
+   } else {
+
+      bubble_spawner.owner = self.enemy;
+
+   }
+   bubble_spawner.think = DeathBubblesSpawn;
+   bubble_spawner.bubble_count = num_bubbles;
+   return ;
+
+};
+
+void () W_FireFlame = {
+
+   local entity flame;
+   local float rn;
+
+   if ( (self.waterlevel > 2.000) ) {
+
+      makevectors (self.v_angle);
+      NewBubbles (2.000,(self.origin + (v_forward * 64.000)));
+      rn = random ();
+      if ( (rn < 0.500) ) {
+
+         sound (self,1.000,"misc/water1.wav",1.000,1.000);
+
+      } else {
+
+         sound (self,1.000,"misc/water2.wav",1.000,1.000);
+
+      }
+      return ;
+
+   }
+   self.ammo_cells = (self.ammo_cells - 1.000);
+   self.currentammo = (self.ammo_cells - 1.000);
+   sound (self,0.000,"weapons/flmfire2.wav",1.000,1.000);
+   flame = spawn ();
+   flame.owner = self;
+   flame.movetype = 9.000;
+   flame.solid = 2.000;
+   flame.classname = "flamerflame";
+   makevectors (self.v_angle);
+   flame.velocity = aim (self,10000.000);
+   flame.velocity = (flame.velocity * 600.000);
+   flame.touch = Flamer_stream_touch;
+   flame.think = s_explode1;
+   flame.nextthink = (time + 0.150);
+   setmodel (flame,"progs/s_explod.spr");
+   setsize (flame,'0.000 0.000 0.000','0.000 0.000 0.000');
+   setorigin (flame,((self.origin + (v_forward * 16.000)) + '0.000 0.000 16.000'));
+
+};
+
+void () T_IncendiaryTouch = {
+
+   local float damg;
+   local float points;
+   local entity head;
+   local vector org;
+
+   if ( (other == self.owner) ) {
+
+      return ;
+
+   }
+   if ( (pointcontents (self.origin) == -6.000) ) {
+
+      remove (self);
+      return ;
+
+   }
+   self.effects = (self.effects | 4.000);
+   damg = (30.000 + (random () * 20.000));
+   if ( other.health ) {
+
+      deathmsg = 15.000;
+      TF_T_Damage (other,self,self.owner,damg,2.000,16.000);
+
+   }
+   head = findradius (self.origin,180.000);
+   while ( head ) {
+
+      if ( head.takedamage ) {
+
+         traceline (self.origin,head.origin,1.000,self);
+         if ( ((trace_fraction == 1.000) || ((trace_fraction != 1.000) && (vlen ((self.origin - head.origin)) <= 64.000))) ) {
+
+            deathmsg = 15.000;
+            TF_T_Damage (head,self,self.owner,10.000,2.000,16.000);
+            other = head;
+            Napalm_touch ();
+            if ( (other.classname == "player") ) {
+
+               stuffcmd (other,"bf\nbf\n");
+
+            }
+
+         }
+
+      }
+      head = head.chain;
+
+   }
+   self.origin = (self.origin - (8.000 * normalize (self.velocity)));
+   WriteByte (0.000,23.000);
+   WriteByte (0.000,3.000);
+   WriteCoord (0.000,self.origin_x);
+   WriteCoord (0.000,self.origin_y);
+   WriteCoord (0.000,self.origin_z);
+   BecomeExplosion ();
+
+};
+
+void () W_FireIncendiaryCannon = {
+
+   if ( (self.ammo_rockets < 3.000) ) {
+
+      return ;
+
+   }
+   self.ammo_rockets = (self.ammo_rockets - 3.000);
+   self.currentammo = (self.ammo_rockets - 3.000);
+   sound (self,1.000,"weapons/sgun1.wav",1.000,1.000);
+   KickPlayer (-3.000,self);
+   newmis = spawn ();
+   newmis.owner = self;
+   newmis.movetype = 9.000;
+   newmis.solid = 2.000;
+   makevectors (self.v_angle);
+   newmis.velocity = aim (self,1000.000);
+   newmis.velocity = (newmis.velocity * 600.000);
+   newmis.angles = vectoangles (newmis.velocity);
+   newmis.touch = T_IncendiaryTouch;
+   newmis.nextthink = (time + 5.000);
+   newmis.think = SUB_Remove;
+   newmis.weapon = 33.000;
+   setmodel (newmis,"progs/missile.mdl");
+   setsize (newmis,'0.000 0.000 0.000','0.000 0.000 0.000');
+   setorigin (newmis,((self.origin + (v_forward * 8.000)) + '0.000 0.000 16.000'));
+
+};
+
+void () TeamFortress_IncendiaryCannon = {
+
+   if ( !(self.weapons_carried & 16384.000) ) {
+
+      return ;
+
+   }
+   if ( (self.ammo_rockets < 3.000) ) {
+
+      sprint (self,2.000,"not enough ammo.\n");
+      return ;
+
+   }
+   self.current_weapon = 16384.000;
+   W_SetCurrentAmmo ();
+
+};
+
+void () TeamFortress_FlameThrower = {
+
+   if ( !(self.weapons_carried & 4096.000) ) {
+
+      return ;
+
+   }
+   if ( (self.ammo_cells < 1.000) ) {
+
+      sprint (self,2.000,"not enough ammo.\n");
+      return ;
+
+   }
+   self.current_weapon = 4096.000;
+   W_SetCurrentAmmo ();
+
+};

@@ -1,0 +1,478 @@
+
+void (entity bld) CheckBelowBuilding;
+
+void (entity gunhead) CheckSentry;
+
+void () Sentry_Rotate;
+float () Sentry_FindTarget;
+
+void () Sentry_FoundTarget;
+
+void () Sentry_HuntTarget;
+
+void () Sentry_Pain;
+
+void () Sentry_Die;
+float () Sentry_Fire;
+
+void () Sentry_MuzzleFlash;
+
+void () lvl1_sentry_atk3;
+
+void () lvl1_sentry_stand = [ 0.000, lvl1_sentry_stand ] {
+
+   Sentry_Rotate ();
+
+};
+
+void () lvl1_sentry_atk1 = [ 1.000, lvl1_sentry_atk3 ] {
+
+   ai_face ();
+   if ( ((((self.enemy == world) || (self.enemy.health <= 0.000)) || !visible (self.enemy)) || (self.enemy.has_disconnected == 1.000)) ) {
+
+      lvl1_sentry_stand ();
+
+   } else {
+
+      if ( (self.ammo_shells <= 0.000) ) {
+
+         lvl1_sentry_stand ();
+
+      } else {
+
+         if ( (Sentry_Fire () == 0.000) ) {
+
+            lvl1_sentry_atk3 ();
+
+         }
+
+      }
+
+   }
+
+};
+
+void () lvl1_sentry_atk2 = [ 2.000, lvl1_sentry_atk3 ] {
+
+   ai_face ();
+   Sentry_Fire ();
+
+};
+
+void () lvl1_sentry_atk3 = [ 0.000, lvl1_sentry_atk1 ] {
+
+   ai_face ();
+
+};
+
+void () lvl2_sentry_atk3;
+
+void () lvl2_sentry_stand = [ 3.000, lvl2_sentry_stand ] {
+
+   Sentry_Rotate ();
+
+};
+
+void () lvl2_sentry_atk1 = [ 4.000, lvl2_sentry_atk2 ] {
+
+   ai_face ();
+   if ( ((((self.enemy == world) || (self.enemy.health <= 0.000)) || !visible (self.enemy)) || (self.enemy.has_disconnected == 1.000)) ) {
+
+      lvl2_sentry_stand ();
+
+   } else {
+
+      if ( (self.ammo_shells <= 0.000) ) {
+
+         lvl2_sentry_stand ();
+
+      } else {
+
+         if ( (Sentry_Fire () == 0.000) ) {
+
+            lvl2_sentry_atk3 ();
+
+         }
+
+      }
+
+   }
+
+};
+
+void () lvl2_sentry_atk2 = [ 5.000, lvl2_sentry_atk3 ] {
+
+   ai_face ();
+   Sentry_Fire ();
+
+};
+
+void () lvl2_sentry_atk3 = [ 3.000, lvl2_sentry_atk1 ] {
+
+   ai_face ();
+   Sentry_Fire ();
+
+};
+
+void () lvl3_sentry_atk3;
+
+void () lvl3_sentry_stand = [ 6.000, lvl3_sentry_stand ] {
+
+   Sentry_Rotate ();
+
+};
+
+void () lvl3_sentry_atk1 = [ 7.000, lvl3_sentry_atk2 ] {
+
+   ai_face ();
+   if ( ((((self.enemy == world) || (self.enemy.health <= 0.000)) || !visible (self.enemy)) || (self.enemy.has_disconnected == 1.000)) ) {
+
+      lvl3_sentry_stand ();
+
+   } else {
+
+      if ( ((self.ammo_shells <= 0.000) && (self.ammo_rockets <= 0.000)) ) {
+
+         lvl3_sentry_stand ();
+
+      } else {
+
+         if ( (Sentry_Fire () == 0.000) ) {
+
+            lvl3_sentry_atk3 ();
+
+         }
+
+      }
+
+   }
+
+};
+
+void () lvl3_sentry_atk2 = [ 8.000, lvl3_sentry_atk3 ] {
+
+   ai_face ();
+   Sentry_Fire ();
+
+};
+
+void () lvl3_sentry_atk3 = [ 6.000, lvl3_sentry_atk1 ] {
+
+   ai_face ();
+   Sentry_Fire ();
+
+};
+
+void () Sentry_Rotate = {
+
+   local float ay;
+   local entity gunhead;
+
+   CheckSentry (self);
+   if ( Sentry_FindTarget () ) {
+
+      return ;
+
+   }
+   if ( (self.heat == 0.000) ) {
+
+      self.ideal_yaw = self.waitmin;
+      ChangeYaw ();
+      ay = anglemod (self.angles_y);
+      ay = rint (ay);
+      if ( (ay == rint (self.waitmin)) ) {
+
+         CheckBelowBuilding (self.trigger_field);
+         self.heat = 1.000;
+         if ( (random () < 0.100) ) {
+
+            sound (self,3.000,"weapons/turridle.wav",1.000,1.000);
+
+         }
+
+      }
+
+   } else {
+
+      self.ideal_yaw = self.waitmax;
+      ChangeYaw ();
+      ay = anglemod (self.angles_y);
+      ay = rint (ay);
+      if ( (ay == rint (self.waitmax)) ) {
+
+         CheckBelowBuilding (self.trigger_field);
+         self.heat = 0.000;
+
+      }
+
+   }
+
+};
+float () Sentry_FindTarget = {
+
+   local entity client;
+   local float r;
+   local float gotone;
+   local float loopc;
+
+   r = 0.000;
+   loopc = 0.000;
+   gotone = 0.000;
+   client = findradius (self.origin,480.000);
+   while ( ((client != world) && (gotone != 1.000)) ) {
+
+      gotone = 1.000;
+      if ( !client ) {
+
+         gotone = 0.000;
+
+      }
+      if ( (client == self) ) {
+
+         gotone = 0.000;
+
+      }
+      if ( (client.has_disconnected == 1.000) ) {
+
+         gotone = 0.000;
+
+      }
+      if ( !client.takedamage ) {
+
+         gotone = 0.000;
+
+      }
+      if ( teamplay ) {
+
+         if ( ((client.team_no == self.team_no) && (self.team_no != 0.000)) ) {
+
+            gotone = 0.000;
+
+         }
+         if ( ((client.undercover_team == self.team_no) && (self.team_no != 0.000)) ) {
+
+            gotone = 0.000;
+
+         }
+
+      }
+      if ( (client == self.real_owner) ) {
+
+         gotone = 0.000;
+
+      }
+      if ( client.is_feigning ) {
+
+         gotone = 0.000;
+
+      }
+      if ( (client.flags & 128.000) ) {
+
+         gotone = 0.000;
+
+      }
+      if ( (client.items & 524288.000) ) {
+
+         gotone = 0.000;
+
+      }
+      if ( !visible (client) ) {
+
+         gotone = 0.000;
+
+      }
+      r = range (client);
+      if ( (r == 3.000) ) {
+
+         gotone = 0.000;
+
+      } else {
+
+         if ( ((r == 2.000) && !infront (client)) ) {
+
+            gotone = 0.000;
+
+         }
+
+      }
+      if ( !gotone ) {
+
+         client = client.chain;
+
+      }
+
+   }
+   if ( !gotone ) {
+
+      return ( 0.000 );
+
+   }
+   self.enemy = client;
+   Sentry_FoundTarget ();
+   return ( 1.000 );
+
+};
+
+void () Sentry_FoundTarget = {
+
+   if ( ((self.ammo_shells > 0.000) || ((self.ammo_rockets > 0.000) && (self.weapon == 3.000))) ) {
+
+      sound (self,2.000,"weapons/turrspot.wav",1.000,1.000);
+
+   }
+   Sentry_HuntTarget ();
+   if ( (self.super_damage_finished < time) ) {
+
+      self.super_damage_finished = (time + 0.500);
+
+   }
+
+};
+
+void () Sentry_HuntTarget = {
+
+   self.goalentity = self.enemy;
+   if ( (self.weapon == 1.000) ) {
+
+      self.think = lvl1_sentry_atk1;
+
+   } else {
+
+      if ( (self.weapon == 2.000) ) {
+
+         self.think = lvl2_sentry_atk1;
+
+      } else {
+
+         self.think = lvl3_sentry_atk1;
+
+      }
+
+   }
+   self.ideal_yaw = vectoyaw ((self.enemy.origin - self.origin));
+   self.nextthink = (time + 0.100);
+   SUB_AttackFinished (1.000);
+
+};
+
+void () Sentry_Pain = {
+
+   self.real_owner.StatusRefreshTime = (time + 0.200);
+
+};
+
+void () Sentry_Explode = {
+
+   ThrowGib ("progs/tgib1.mdl",-70.000);
+   ThrowGib ("progs/tgib2.mdl",-70.000);
+   ThrowGib ("progs/tgib3.mdl",-70.000);
+   if ( (self.real_owner.has_disconnected != 1.000) ) {
+
+      deathmsg = 38.000;
+      T_RadiusDamage (self,self.real_owner,(75.000 + (self.ammo_rockets * 8.000)),self);
+
+   }
+   if ( (self.classname == "building_sentrygun_base") ) {
+
+      if ( self.oldenemy ) {
+
+         dremove (self.oldenemy);
+
+      }
+
+   } else {
+
+      dremove (self.trigger_field);
+
+   }
+   WriteByte (0.000,23.000);
+   WriteByte (0.000,3.000);
+   WriteCoord (0.000,self.origin_x);
+   WriteCoord (0.000,self.origin_y);
+   WriteCoord (0.000,self.origin_z);
+   BecomeExplosion ();
+
+};
+
+void () Sentry_Die = {
+
+   sprint (self.real_owner,2.000,"Your sentry gun was destroyed.\n");
+   self.real_owner.has_sentry = 0.000;
+   self.think = Sentry_Explode;
+   self.nextthink = (time + 0.100);
+
+};
+float () Sentry_Fire = {
+
+   local vector dir;
+
+   dir = (self.enemy.origin - self.origin);
+   if ( (((self.ideal_yaw - anglemod (self.angles_y)) < -10.000) || ((self.ideal_yaw - anglemod (self.angles_y)) > 10.000)) ) {
+
+      return ( 0.000 );
+
+   }
+   if ( (((self.weapon == 3.000) && (self.ammo_rockets > 0.000)) && (self.super_damage_finished < time)) ) {
+
+      Sentry_MuzzleFlash ();
+      sound (self,1.000,"weapons/rocket1i.wav",1.000,1.000);
+      newmis = spawn ();
+      newmis.owner = self;
+      newmis.movetype = 9.000;
+      newmis.solid = 2.000;
+      newmis.velocity = (normalize ((self.enemy.origin - self.origin)) * 800.000);
+      newmis.angles = vectoangles (newmis.velocity);
+      newmis.weapon = 34.000;
+      newmis.touch = T_MissileTouch;
+      newmis.nextthink = (time + 5.000);
+      newmis.think = SUB_Remove;
+      setmodel (newmis,"progs/missile.mdl");
+      setsize (newmis,'0.000 0.000 0.000','0.000 0.000 0.000');
+      setorigin (newmis,((self.origin + (v_forward * 8.000)) + '0.000 0.000 16.000'));
+      self.super_damage_finished = (time + 3.000);
+      self.ammo_rockets = (self.ammo_rockets - 1.000);
+      if ( (self.ammo_rockets == 10.000) ) {
+
+         sprint (self.real_owner,2.000,"Sentry Gun is low on rockets.\n");
+
+      }
+
+   }
+   self.ammo_shells = (self.ammo_shells - 1.000);
+   if ( (self.ammo_shells < 0.000) ) {
+
+      self.ammo_shells = 0.000;
+      return ( 0.000 );
+
+   }
+   Sentry_MuzzleFlash ();
+   sound (self,1.000,"weapons/sniper.wav",1.000,1.000);
+   deathmsg = 27.000;
+   FireBullets (4.000,dir,'0.100 0.100 0.000');
+   if ( ((self.ammo_shells == 0.000) && (random () < 0.100)) ) {
+
+      sprint (self.real_owner,2.000,"Sentry Gun is out of shells.\n");
+
+   } else {
+
+      if ( (self.ammo_shells == 20.000) ) {
+
+         sprint (self.real_owner,2.000,"Sentry Gun is low on shells.\n");
+
+      }
+
+   }
+   if ( (((self.ammo_rockets == 0.000) && (self.weapon == 3.000)) && (random () < 0.100)) ) {
+
+      sprint (self.real_owner,2.000,"Sentry Gun is out of rockets.\n");
+
+   }
+   return ( 1.000 );
+
+};
+
+void () Sentry_MuzzleFlash = {
+
+   self.effects = (self.effects | 2.000);
+
+};

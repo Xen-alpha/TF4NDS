@@ -1,0 +1,125 @@
+
+void () FlareGrenadeTouch = {
+
+   sound (self,1.000,"weapons/bounce.wav",1.000,1.000);
+   if ( (pointcontents (self.origin) == -6.000) ) {
+
+      dremove (self);
+      return ;
+
+   }
+   if ( (other == world) ) {
+
+      self.movetype = 0.000;
+      self.velocity = '0.000 0.000 0.000';
+
+   }
+   if ( (self.velocity == '0.000 0.000 0.000') ) {
+
+      self.avelocity = '0.000 0.000 0.000';
+      self.touch = SUB_Null;
+
+   }
+
+};
+
+void () FlareGrenadeThink = {
+
+   local float rnum;
+   local float time_left;
+
+   time_left = (self.health - time);
+   if ( (time_left > 33.000) ) {
+
+      rnum = random ();
+      if ( (rnum < 0.500) ) {
+
+         self.effects = 8.000;
+
+      } else {
+
+         self.effects = 0.000;
+
+      }
+      self.nextthink = ((time + 0.050) + (random () * 0.100));
+
+   } else {
+
+      if ( (time_left > 31.000) ) {
+
+         rnum = random ();
+         if ( (rnum < 0.500) ) {
+
+            self.effects = 4.000;
+
+         } else {
+
+            self.effects = 8.000;
+
+         }
+         self.nextthink = ((time + 0.050) + (random () * 0.100));
+
+      } else {
+
+         if ( (time_left > 15.000) ) {
+
+            self.effects = 4.000;
+            self.nextthink = (time + 10.000);
+
+         } else {
+
+            if ( (time_left < 1.000) ) {
+
+               RemoveFlare ();
+
+            } else {
+
+               self.effects = 8.000;
+               self.nextthink = (time + time_left);
+
+            }
+
+         }
+
+      }
+
+   }
+
+};
+
+void () FlareGrenadeExplode = {
+
+   if ( (self.weapon != 0.000) ) {
+
+      increment_team_flares (self.weapon);
+      if ( (num_team_flares (self.weapon) > (3.000 / number_of_teams)) ) {
+
+         RemoveOldFlare (self.weapon);
+
+      }
+
+   } else {
+
+      num_world_flares = (num_world_flares + 1.000);
+      if ( (num_world_flares > 3.000) ) {
+
+         RemoveOldFlare (0.000);
+
+      }
+
+   }
+   self.skin = 1.000;
+   self.health = (time + 40.000);
+   self.nextthink = ((time + 0.050) + (random () * 0.100));
+   self.think = FlareGrenadeThink;
+
+};
+
+void () RemoveFlare = {
+
+   self.effects = (self.effects - (self.effects & 4.000));
+   dremove (self);
+   num_world_flares = (num_world_flares - 1.000);
+   decrement_team_flares (self.weapon);
+
+};

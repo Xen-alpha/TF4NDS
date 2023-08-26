@@ -1,0 +1,11 @@
+# visual studio file
+.vs
+*.sln
+*.vcxproj
+*.vcxproj.*
+*.c.unused
+# object files
+*.o
+*.d
+*.map
+*.elf

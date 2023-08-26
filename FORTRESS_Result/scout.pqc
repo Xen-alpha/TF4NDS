@@ -1,0 +1,768 @@
+
+void () CaltropTouch;
+
+void () CaltropScatterThink;
+
+void () ScatterCaltrops;
+
+void () FlashGrenadeTouch;
+
+void () FlashTimer;
+
+void () FlashGrenadeExplode;
+
+void () ConcussionGrenadeTouch;
+
+void () ConcussionGrenadeExplode;
+
+void (entity inflictor, entity attacker, float bounce, entity ignore) T_RadiusBounce;
+entity (entity scanner, float scanrange, float enemies, float friends) T_RadiusScan;
+
+void () CanisterTouch = {
+
+   sound (self,1.000,"weapons/tink1.wav",1.000,1.000);
+   if ( (self.velocity == '0.000 0.000 0.000') ) {
+
+      self.avelocity = '0.000 0.000 0.000';
+
+   }
+
+};
+
+void () CaltropTouch = {
+
+   if ( (((other.classname != "player") || !(other.flags & 512.000)) || other.deadflag) ) {
+
+      return ;
+
+   }
+   if ( (((teamplay & 16.000) && (other != self.owner)) && ((self.team_no && other.team_no) == self.team_no)) ) {
+
+      return ;
+
+   }
+   sprint (other,2.000,"Ow, Ow, Ow! Caltrops!\n");
+   other.leg_damage = (other.leg_damage + 2.000);
+   TeamFortress_SetSpeed (other);
+   deathmsg = 41.000;
+   T_Damage (other,self,self.owner,10.000);
+   dremove (self);
+
+};
+
+void () CaltropScatterThink = {
+
+   self.nextthink = (time + 0.200);
+   if ( (self.velocity == '0.000 0.000 0.000') ) {
+
+      if ( (self.flags & 512.000) ) {
+
+         self.nextthink = ((time + 10.000) + (random () * 5.000));
+         self.think = SUB_Remove;
+         self.solid = 1.000;
+         self.movetype = 6.000;
+         self.touch = CaltropTouch;
+         self.angles = '90.000 90.000 90.000';
+         sound (self,0.000,"weapons/tink1.wav",1.000,1.000);
+         setorigin (self,self.origin);
+         return ;
+
+      } else {
+
+         self.nextthink = ((time + 10.000) + (random () * 5.000));
+         self.think = SUB_Remove;
+         self.solid = 1.000;
+         self.movetype = 6.000;
+         self.touch = CanisterTouch;
+         setorigin (self,self.origin);
+         return ;
+
+      }
+
+   }
+   traceline (self.movedir,self.origin,1.000,self);
+   if ( (trace_fraction == 1.000) ) {
+
+      self.movedir = self.origin;
+      return ;
+
+   }
+   self.velocity = (self.velocity * -1.000);
+   self.heat = (self.heat + 1.000);
+   if ( (self.heat > 10.000) ) {
+
+      remove (self);
+      return ;
+
+   }
+
+};
+
+void () ScatterCaltrops = {
+
+   local float num;
+   local entity e;
+
+   num = 6.000;
+   while ( (num > 0.000) ) {
+
+      e = spawn ();
+      e.classname = "grenade";
+      e.weapon = 10.000;
+      e.owner = self.owner;
+      e.team_no = self.owner.team_no;
+      setmodel (e,"progs/caltrop.mdl");
+      e.mins = '-4.000 -4.000 -8.000';
+      e.maxs = '4.000 4.000 4.000';
+      e.angles = '0.000 0.000 0.000';
+      e.angles_x = (random () * 360.000);
+      e.velocity_x = (crandom () * 100.000);
+      e.velocity_y = (crandom () * 100.000);
+      e.velocity_z = (200.000 + (random () * 100.000));
+      e.avelocity_x = (crandom () * 400.000);
+      e.avelocity_y = (crandom () * 400.000);
+      e.avelocity_z = (crandom () * 400.000);
+      setorigin (e,self.owner.origin);
+      e.movedir = e.origin;
+      e.heat = 0.000;
+      e.movetype = 10.000;
+      e.solid = 0.000;
+      e.nextthink = (time + 0.200);
+      e.think = CaltropScatterThink;
+      num = (num - 1.000);
+
+   }
+   dremove (self);
+
+};
+
+void () FlashGrenadeTouch = {
+
+   sound (self,1.000,"weapons/bounce.wav",1.000,1.000);
+   if ( (self.velocity == '0.000 0.000 0.000') ) {
+
+      self.avelocity = '0.000 0.000 0.000';
+
+   }
+
+};
+
+void () FlashTimer = {
+
+   local entity te;
+   local string st;
+
+   te = self.owner;
+   te.FlashTime = (te.FlashTime - 0.100);
+   if ( (te.FlashTime < 5.000) ) {
+
+      te.FlashTime = 0.000;
+      stuffcmd (te,"v_cshift; wait; bf\n");
+      remove (self);
+      return ;
+
+   }
+   st = ftos ((te.FlashTime * 10.000));
+   stuffcmd (te,"v_cshift ");
+   stuffcmd (te,st);
+   stuffcmd (te," ");
+   stuffcmd (te,st);
+   stuffcmd (te," ");
+   stuffcmd (te,st);
+   stuffcmd (te," ");
+   stuffcmd (te,st);
+   stuffcmd (te,"\n");
+   self.nextthink = (time + 0.100);
+
+};
+
+void () FlashGrenadeExplode = {
+
+   local float expsize;
+   local entity te;
+   local entity oldself;
+   /* Warning: No local name with offset 23657 */
+   /* Warning: No local name with offset 23658 */
+   /* Warning: No local name with offset 23659 */
+   /* Warning: No local name with offset 23660 */
+   /* Warning: No local name with offset 23661 */
+   /* Warning: No local name with offset 23662 */
+   /* Warning: No local name with offset 23663 */
+   /* Warning: No local name with offset 23664 */
+   /* Warning: No local name with offset 23665 */
+   /* Warning: No local name with offset 23666 */
+   /* Warning: No local name with offset 23667 */
+   /* Warning: No local name with offset 23668 */
+   /* Warning: No local name with offset 23669 */
+   /* Warning: No local name with offset 23670 */
+   /* Warning: No local name with offset 23671 */
+   /* Warning: No local name with offset 23672 */
+   /* Warning: No local name with offset 23673 */
+   /* Warning: No local name with offset 23674 */
+   /* Warning: No local name with offset 23675 */
+   /* Warning: No local name with offset 23676 */
+   /* Warning: No local name with offset 23677 */
+   /* Warning: No local name with offset 23678 */
+   /* Warning: No local name with offset 23679 */
+   /* Warning: No local name with offset 23680 */
+   /* Warning: No local name with offset 23681 */
+   /* Warning: No local name with offset 23682 */
+   /* Warning: No local name with offset 23683 */
+   /* Warning: No local name with offset 23684 */
+   /* Warning: No local name with offset 23685 */
+   /* Warning: No local name with offset 23686 */
+   /* Warning: No local name with offset 23687 */
+   /* Warning: No local name with offset 23688 */
+   /* Warning: No local name with offset 23689 */
+   /* Warning: No local name with offset 23690 */
+   /* Warning: No local name with offset 23691 */
+   /* Warning: No local name with offset 23692 */
+   /* Warning: No local name with offset 23693 */
+   /* Warning: No local name with offset 23694 */
+   /* Warning: No local name with offset 23695 */
+   /* Warning: No local name with offset 23696 */
+   /* Warning: No local name with offset 23697 */
+   /* Warning: No local name with offset 23698 */
+   /* Warning: No local name with offset 23699 */
+   /* Warning: No local name with offset 23700 */
+   /* Warning: No local name with offset 23701 */
+   /* Warning: No local name with offset 23702 */
+   /* Warning: No local name with offset 23703 */
+   local string st;
+
+   self.effects = (self.effects | 4.000);
+   WriteByte (0.000,23.000);
+   WriteByte (0.000,4.000);
+   WriteCoord (0.000,self.origin_x);
+   WriteCoord (0.000,self.origin_y);
+   WriteCoord (0.000,self.origin_z);
+   te = findradius (self.origin,300.000);
+   while ( te ) {
+
+      if ( (te.classname == "player") ) {
+
+         traceline (self.origin,te.origin,1.000,self);
+         if ( (trace_fraction == 1.000) ) {
+
+            if ( (vlen ((self.origin - te.origin)) <= 200.000) ) {
+
+               deathmsg = 35.000;
+               TF_T_Damage (te,self,self.owner,60.000,2.000,(16.000 | 4.000));
+
+            }
+            if ( (te.health > 0.000) ) {
+
+               if ( (te.FlashTime == 0.000) ) {
+
+                  newmis = spawn ();
+                  newmis.classname = "timer";
+                  newmis.netname = "flashtimer";
+                  newmis.team_no = self.owner.team_no;
+                  newmis.owner = te;
+                  newmis.think = FlashTimer;
+                  newmis.nextthink = (time + 1.000);
+
+               }
+               if ( (te == self.owner) ) {
+
+                  te.FlashTime = 16.000;
+
+               } else {
+
+                  te.FlashTime = 24.000;
+
+               }
+               st = ftos ((te.FlashTime * 10.000));
+               stuffcmd (te,"v_cshift ");
+               stuffcmd (te,st);
+               stuffcmd (te," ");
+               stuffcmd (te,st);
+               stuffcmd (te," ");
+               stuffcmd (te,st);
+               stuffcmd (te," ");
+               stuffcmd (te,st);
+               stuffcmd (te,"\n");
+
+            }
+
+         }
+
+      }
+      te = te.chain;
+
+   }
+   BecomeExplosion ();
+
+};
+
+void () ConcussionGrenadeTouch = {
+
+   sound (self,1.000,"weapons/bounce.wav",1.000,1.000);
+   if ( (self.velocity == '0.000 0.000 0.000') ) {
+
+      self.avelocity = '0.000 0.000 0.000';
+
+   }
+
+};
+
+void () ConcussionGrenadeExplode = {
+
+   T_RadiusBounce (self,self.owner,240.000,world);
+   WriteByte (0.000,23.000);
+   WriteByte (0.000,3.000);
+   WriteCoord (0.000,self.origin_x);
+   WriteCoord (0.000,self.origin_y);
+   WriteCoord (0.000,self.origin_z);
+   BecomeExplosion ();
+
+};
+
+void () OldConcussionGrenadeTimer = {
+
+   local string st;
+
+   if ( (self.owner.invincible_finished > time) ) {
+
+      stuffcmd (self.owner,"v_idlescale 0; wait; fov 90\n");
+      dremove (self);
+      return ;
+
+   }
+   newmis = spawn ();
+   setmodel (newmis,"progs/s_bubble.spr");
+   setorigin (newmis,self.owner.origin);
+   newmis.movetype = 8.000;
+   newmis.solid = 0.000;
+   newmis.velocity = '0.000 0.000 15.000';
+   newmis.nextthink = (time + 0.500);
+   newmis.think = bubble_bob;
+   newmis.touch = bubble_remove;
+   newmis.classname = "bubble";
+   newmis.frame = 0.000;
+   newmis.cnt = 0.000;
+   setsize (newmis,'-8.000 -8.000 -8.000','8.000 8.000 8.000');
+   self.health = (self.health - 20.000);
+   if ( (self.owner.playerclass == 5.000) ) {
+
+      self.health = (self.health - 20.000);
+
+   }
+   if ( (self.health < 0.000) ) {
+
+      self.health = 0.000;
+
+   }
+   self.nextthink = (time + 5.000);
+   stuffcmd (self.owner,"v_iroll_cycle 0.5\n");
+   stuffcmd (self.owner,"v_ipitch_cycle 1\n");
+   stuffcmd (self.owner,"v_iyaw_cycle 2\n");
+   st = ftos (self.health);
+   stuffcmd (self.owner,"v_idlescale ");
+   stuffcmd (self.owner,st);
+   stuffcmd (self.owner,"\n");
+   st = ftos ((90.000 + (self.health / 2.000)));
+   stuffcmd (self.owner,"fov ");
+   stuffcmd (self.owner,st);
+   stuffcmd (self.owner,"\n");
+   if ( (self.health == 0.000) ) {
+
+      dremove (self);
+
+   }
+
+};
+
+void () ConcussionGrenadeTimer = {
+
+   local string st;
+   local vector stumble;
+   local vector src;
+   local float pos;
+
+   if ( (self.owner.invincible_finished > time) ) {
+
+      sprint (self.owner,2.000,"Your head feels better now.\n");
+      self.owner.fixangle = 0.000;
+      dremove (self);
+      return ;
+
+   }
+   if ( (((((self.health == 200.000) || (self.health == 400.000)) || (self.health == 600.000)) || (self.health == 800.000)) || (self.health == 1000.000)) ) {
+
+      newmis = spawn ();
+      setmodel (newmis,"progs/s_bubble.spr");
+      setorigin (newmis,self.owner.origin);
+      newmis.movetype = 8.000;
+      newmis.solid = 0.000;
+      newmis.velocity = '0.000 0.000 15.000';
+      newmis.nextthink = (time + 0.500);
+      newmis.think = bubble_bob;
+      newmis.touch = bubble_remove;
+      newmis.classname = "bubble";
+      newmis.frame = 0.000;
+      newmis.cnt = 0.000;
+      setsize (newmis,'-8.000 -8.000 -8.000','8.000 8.000 8.000');
+
+   }
+   self.health = (self.health - 10.000);
+   if ( (self.owner.playerclass == 5.000) ) {
+
+      self.health = (self.health - 10.000);
+
+   }
+   if ( (self.health < 0.000) ) {
+
+      self.health = 0.000;
+
+   }
+   self.nextthink = (time + 0.250);
+   pos = pointcontents (self.owner.origin);
+   src_x = ((self.owner.origin_x + self.owner.maxs_x) + 2.000);
+   src_y = ((self.owner.origin_y + self.owner.maxs_y) + 2.000);
+   pos = pointcontents (src);
+   if ( ((self.owner.flags & 512.000) || (self.owner.flags & 16.000)) ) {
+
+      if ( (self.owner.is_feigning == 0.000) ) {
+
+         makevectors (self.owner.v_angle);
+         stumble = (((crandom () * v_forward) * self.health) + ((crandom () * v_right) * self.health));
+         if ( !((pos == -2.000) && (self.owner.velocity == '0.000 0.000 0.000')) ) {
+
+            self.owner.velocity = (self.owner.velocity + stumble);
+            self.owner.fixangle = 1.000;
+
+         }
+
+      }
+
+   }
+   if ( (self.health == 0.000) ) {
+
+      sprint (self.owner,2.000,"Your head feels better now.\n");
+      dremove (self);
+
+   }
+
+};
+
+void (float scanrange) TeamFortress_Scan = {
+
+   local string power;
+   local entity list;
+   local float scancost;
+   local float scen;
+   local float scfr;
+   local vector lightningvec;
+   local float enemy_detected;
+   local float any_detected;
+   local vector vf;
+   local vector vr;
+   local vector e;
+   local float res1;
+   local float res2;
+   local float res3;
+   local float vf_e_angle;
+   local float vr_e_angle;
+
+   self.impulse = 0.000;
+   self.last_impulse = 0.000;
+   if ( (self.classname == "player") ) {
+
+      if ( !(self.tf_items & 1.000) ) {
+
+         return ;
+
+      }
+      if ( (scanrange == 160.000) ) {
+
+         if ( (self.tf_items_flags & 1.000) ) {
+
+            sprint (self,2.000,"Enemy Scanning disabled.\n");
+            self.tf_items_flags = (self.tf_items_flags - 1.000);
+            return ;
+
+         }
+         sprint (self,2.000,"Enemy Scanning enabled.\n");
+         self.tf_items_flags = (self.tf_items_flags | 1.000);
+         return ;
+
+      }
+      if ( (scanrange == 161.000) ) {
+
+         if ( (self.tf_items_flags & 2.000) ) {
+
+            sprint (self,2.000,"Friendly Scanning disabled.\n");
+            self.tf_items_flags = (self.tf_items_flags - 2.000);
+            return ;
+
+         }
+         sprint (self,2.000,"Friendly Scanning enabled.\n");
+         self.tf_items_flags = (self.tf_items_flags | 2.000);
+         return ;
+
+      }
+      if ( (scanrange > 50.000) ) {
+
+         scanrange = 50.000;
+
+      }
+      scen = 0.000;
+      scfr = 0.000;
+      if ( (self.tf_items_flags & 1.000) ) {
+
+         scen = 1.000;
+
+      }
+      if ( (self.tf_items_flags & 2.000) ) {
+
+         scfr = 1.000;
+
+      }
+      if ( ((scen == 0.000) && (scfr == 0.000)) ) {
+
+         sprint (self,2.000,"All scanner functions are disabled.\n");
+         return ;
+
+      }
+      sprint (self,2.000,"Scanning...\n");
+      scanrange = (scanrange * 25.000);
+      list = T_RadiusScan (self,scanrange,scen,scfr);
+
+   }
+   scen = 0.000;
+   scfr = 0.000;
+   makevectors (self.v_angle);
+   while ( list ) {
+
+      any_detected = 1.000;
+      if ( (self.tf_items_flags & 4.000) ) {
+
+         if ( (vlen (list.velocity) > 50.000) ) {
+
+            if ( ((list.team_no > 0.000) && (list.team_no == self.team_no)) ) {
+
+               scfr = (scfr + 1.000);
+               enemy_detected = 0.000;
+
+            } else {
+
+               scen = (scen + 1.000);
+               enemy_detected = 1.000;
+
+            }
+
+         } else {
+
+            any_detected = 0.000;
+
+         }
+
+      } else {
+
+         if ( (((list.team_no > 0.000) && (self.team_no > 0.000)) && (list.team_no == self.team_no)) ) {
+
+            scfr = (scfr + 1.000);
+            enemy_detected = 0.000;
+
+         } else {
+
+            scen = (scen + 1.000);
+            enemy_detected = 1.000;
+
+         }
+
+      }
+      if ( any_detected ) {
+
+         lightningvec = normalize ((list.origin - self.origin));
+         lightningvec = (lightningvec * (vlen ((list.origin - self.origin)) / 5.000));
+         lightningvec = (lightningvec + self.origin);
+         msg_entity = self;
+         WriteByte (1.000,23.000);
+         WriteByte (1.000,5.000);
+         WriteEntity (1.000,self);
+         WriteCoord (1.000,self.origin_x);
+         WriteCoord (1.000,self.origin_y);
+         WriteCoord (1.000,(self.origin_z + 8.000));
+         WriteCoord (1.000,lightningvec);
+         WriteCoord (1.000,lightningvec_y);
+         WriteCoord (1.000,(lightningvec_z + 8.000));
+
+      }
+      list = list.linked_list;
+
+   }
+   if ( ((scen == 0.000) && (scfr == 0.000)) ) {
+
+      sprint (self,2.000,"No blips.\n");
+      return ;
+
+   }
+   W_SetCurrentAmmo ();
+   return ;
+
+};
+
+void (entity inflictor, entity attacker, float bounce, entity ignore) T_RadiusBounce = {
+
+   local float points;
+   local entity head;
+   local entity te;
+   local vector org;
+   local string st;
+
+   head = findradius (inflictor.origin,(bounce + 40.000));
+   while ( head ) {
+
+      if ( (head != ignore) ) {
+
+         if ( head.takedamage ) {
+
+            org = (head.origin + ((head.mins + head.maxs) * 0.500));
+            points = (0.500 * vlen ((org - inflictor.origin)));
+            if ( (points < 0.000) ) {
+
+               points = 0.000;
+
+            }
+            points = (bounce - points);
+            if ( ((((head.classname != "building_dispenser") && (head.classname != "building_sentrygun")) && (head.classname != "building_sentrygun_base")) && (points > 0.000)) ) {
+
+               head.velocity = (org - inflictor.origin);
+               head.velocity = (head.velocity * (points / 20.000));
+               if ( (head.classname != "player") ) {
+
+                  if ( (head.flags & 512.000) ) {
+
+                     head.flags = (head.flags - 512.000);
+
+                  }
+
+               } else {
+
+                  te = find (world,classname,"timer");
+                  while ( ((((te.owner != head) || (te.think != ConcussionGrenadeTimer)) || (te.think != OldConcussionGrenadeTimer)) && (te != world)) ) {
+
+                     te = find (te,classname,"timer");
+
+                  }
+                  if ( (te != world) ) {
+
+                     if ( (old_grens == 1.000) ) {
+
+                        stuffcmd (head,"v_idlescale 100\n");
+                        stuffcmd (head,"fov 130\n");
+                        te.health = 100.000;
+                        te.nextthink = (time + 5.000);
+
+                     } else {
+
+                        te.health = 800.000;
+                        te.nextthink = (time + 0.250);
+
+                     }
+
+                  } else {
+
+                     if ( (old_grens == 1.000) ) {
+
+                        stuffcmd (head,"v_idlescale 100\n");
+                        stuffcmd (head,"fov 130\n");
+                        stuffcmd (head,"bf\n");
+                        te = spawn ();
+                        te.nextthink = (time + 5.000);
+                        te.think = OldConcussionGrenadeTimer;
+                        te.team_no = attacker.team_no;
+                        te.classname = "timer";
+                        te.owner = head;
+                        te.health = 100.000;
+
+                     } else {
+
+                        te = spawn ();
+                        te.nextthink = (time + 0.250);
+                        te.think = ConcussionGrenadeTimer;
+                        te.team_no = attacker.team_no;
+                        te.classname = "timer";
+                        te.owner = head;
+                        te.health = 800.000;
+
+                     }
+
+                  }
+
+               }
+
+            }
+
+         }
+
+      }
+      head = head.chain;
+
+   }
+
+};
+entity (entity scanner, float scanrange, float enemies, float friends) T_RadiusScan = {
+
+   local entity head;
+   local entity list_head;
+   local entity list;
+   local float gotatarget;
+
+   head = findradius (scanner.origin,(scanrange + 40.000));
+   while ( head ) {
+
+      gotatarget = 0.000;
+      if ( (head != scanner) ) {
+
+         if ( ((head.takedamage != 0.000) && (head.health > 0.000)) ) {
+
+            if ( ((head.classname == "player") && (friends || enemies)) ) {
+
+               if ( teamplay ) {
+
+                  if ( (((friends != 0.000) && (head.team_no > 0.000)) && (head.team_no == scanner.team_no)) ) {
+
+                     gotatarget = 1.000;
+
+                  }
+                  if ( ((((enemies != 0.000) && (head.team_no > 0.000)) && (scanner.team_no > 0.000)) && (head.team_no != scanner.team_no)) ) {
+
+                     gotatarget = 1.000;
+
+                  }
+
+               } else {
+
+                  gotatarget = 1.000;
+
+               }
+
+            }
+
+         }
+
+      }
+      if ( gotatarget ) {
+
+         if ( list ) {
+
+            list.linked_list = head;
+            list = list.linked_list;
+
+         } else {
+
+            list_head = head;
+            list = head;
+
+         }
+
+      }
+      head = head.chain;
+
+   }
+   return ( list_head );
+
+};
