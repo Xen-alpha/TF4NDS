@@ -45,7 +45,7 @@ LIBS	:=	-lhelix -lnds7
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:=	$(LIBNDS) /mnt/d/GitHub/TF4NDS/helix
+LIBDIRS	:=	$(LIBNDS) $(CURDIR)/../helix
  
   
 #---------------------------------------------------------------------------------
