@@ -1,11 +1,46 @@
-#ifndef QUAKEDEF_H
-#define QUAKEDEF_H
+/*
+Copyright (C) 1996-1997 Id Software, Inc.
 
-#define	VERSION				2.51
-#define	GAMENAME	"FORTRESS"
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+*/
+// quakedef.h -- primary header for client
+
+#pragma optimize ("gsy",on)
+
+//#pragma comment (linker,"/opt:nowin98")
+//#pragma comment (linker,"/merge:.text=.data")
+//#pragma comment (linker,"/merge:.reloc=.data")
+//#pragma comment (linker,"/ignore:4078")
+
+#pragma warning(disable : 4244)     // MIPS
+#pragma warning(disable : 4013)     // undefined: assuming extern returning int
+
+#define	VERSION				1.09
+#define	GLQUAKE_VERSION		0.97
+#define	WINQUAKE_VERSION	 2.8.9
+
+#define	GAMENAME	"id1"
+
+#ifdef ARM9
 #include <nds.h>
 #include <fastmath.h>
+#else
+#include <math.h>
+#endif
 
 #include <string.h>
 #include <stdarg.h>
@@ -13,27 +48,57 @@
 #include <stdlib.h>
 #include <setjmp.h>
 
-// the host system specifies the base of the directory tree, the
-// command line parms passed to the program, and the amount of memory
-// available for the program to use
+#if defined(_WIN32) && !defined(WINDED)
 
-typedef struct
-{
-	char* basedir;
-	char* cachedir;		// for development over ISDN lines
-	int		argc;
-	char** argv;
-	void* membase;
-	int		memsize;
-} quakeparms_t;
+#if defined(_M_IX86)
+#define __i386__	1
+#endif
+
+//void	VID_LockBuffer (void);
+//void	VID_UnlockBuffer (void);
+
+#define	VID_LockBuffer()
+#define	VID_UnlockBuffer()
+
+#else
+
+#define	VID_LockBuffer()
+#define	VID_UnlockBuffer()
+
+#endif
+
+#if defined __i386__
+#define id386	0
+#else
+#define id386	0
+#endif
+
+#if id386
+#define UNALIGNED_OK	1	// set to 0 if unaligned accesses are not supported
+#else
+#define UNALIGNED_OK	0
+#endif
 
 // !!! if this is changed, it must be changed in d_ifacea.h too !!!
 #define CACHE_SIZE	32		// used to align key data structures
 
 #define UNUSED(x)	(x = x)	// for pesky compiler / lint warnings
 
-#define	MINIMUM_MEMORY			(2900*1024) // NDS wifi only
-#define  MAX_NUM_ARGVS	50
+//#define	MINIMUM_MEMORY			0x550000
+//#define	MINIMUM_MEMORY			3378176
+#ifdef USE_WIFI
+#define	MINIMUM_MEMORY			(3335*1024)
+#else
+#define	MINIMUM_MEMORY			(3200*1024)
+#endif
+
+#ifdef USE_DSNIFI
+#undef MINIMUM_MEMORY
+#define	MINIMUM_MEMORY			(2900*1024)
+#endif
+#define	MINIMUM_MEMORY_LEVELPAK	(MINIMUM_MEMORY + 0x100000)
+
+#define MAX_NUM_ARGVS	50
 
 // up / down
 #define	PITCH	0
@@ -43,6 +108,7 @@ typedef struct
 
 // fall over
 #define	ROLL	2
+
 
 #define	MAX_QPATH		64			// max length of a quake game pathname
 #define	MAX_OSPATH		128			// max length of a filesystem pathname
@@ -156,4 +222,128 @@ typedef struct
 
 #define	SOUND_CHANNELS		8
 
+// TODO: Copy below to new source code file
+
+#include "common.h"
+#include "bspfile.h"
+#include "vid.h"
+#include "sys.h"
+#include "zone.h"
+#include "mathlib.h"
+
+typedef struct
+{
+	vec3_t	origin;
+	vec3_t	angles;
+	int		modelindex;
+	int		frame;
+	int		colormap;
+	int		skin;
+	int		effects;
+} entity_state_t;
+
+
+#include "wad.h"
+#include "draw.h"
+#include "cvar.h"
+#include "screen.h"
+#include "net.h"
+#include "protocol.h"
+#include "cmd.h"
+#include "sbar.h"
+#include "sound.h"
+#include "render.h"
+#include "client.h"
+#include "progs.h"
+#include "server.h"
+
+#ifdef GLQUAKE
+#include "gl_model.h"
+#else
+#include "model.h"
+#include "d_iface.h"
 #endif
+
+#include "input.h"
+#include "world.h"
+#include "keys.h"
+#include "console.h"
+#include "view.h"
+#include "menu.h"
+#include "crc.h"
+#include "cdaudio.h"
+
+#ifdef GLQUAKE
+#include "glquake.h"
+#endif
+
+//=============================================================================
+
+// the host system specifies the base of the directory tree, the
+// command line parms passed to the program, and the amount of memory
+// available for the program to use
+
+typedef struct
+{
+	char	*basedir;
+	char	*cachedir;		// for development over ISDN lines
+	int		argc;
+	char	**argv;
+	void	*membase;
+	int		memsize;
+} quakeparms_t;
+
+
+//=============================================================================
+
+
+
+extern qboolean noclip_anglehack;
+
+
+//
+// host
+//
+extern	quakeparms_t host_parms;
+
+extern	cvar_t		sys_ticrate;
+extern	cvar_t		developer;
+
+extern	qboolean	host_initialized;		// true if into command execution
+extern	double		host_frametime;
+extern	byte		*host_basepal;
+extern	byte		*host_colormap;
+extern	int			host_framecount;	// incremented every frame, never reset
+extern	double		realtime;			// not bounded in any way, changed at
+										// start of every frame, never reset
+
+void Host_ClearMemory (void);
+void Host_ServerFrame (void);
+void Host_InitCommands (void);
+void Host_Init (quakeparms_t *parms);
+void Host_Shutdown(void);
+void Host_Error (char *error, ...);
+void Host_EndGame (char *message, ...);
+void Host_Frame (float time);
+void Host_Quit_f (void);
+void Host_ClientCommands (char *fmt, ...);
+void Host_ShutdownServer (qboolean crash);
+
+extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
+										//  an fullscreen DIB focus gain/loss
+extern int			current_skill;		// skill level for currently loaded level (in case
+										//  the user changes the cvar while the level is
+										//  running, this reflects the level actually in use)
+
+extern qboolean		isDedicated;
+
+extern int			minimum_memory;
+
+//
+// chase
+//
+extern	cvar_t	chase_active;
+
+void Chase_Init (void);
+void Chase_Reset (void);
+void Chase_Update (void);

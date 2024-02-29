@@ -17,16 +17,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// input.h -- external (non-keyboard) input devices
+// conproc.h
+#ifdef WIN32
 
-void IN_Init (void);
+#define CCOM_WRITE_TEXT		0x2
+// Param1 : Text
 
-void IN_Shutdown (void);
+#define CCOM_GET_TEXT		0x3
+// Param1 : Begin line
+// Param2 : End line
 
-void IN_Move (usercmd_t *cmd);
-// add additional movement on top of the keyboard move cmd
+#define CCOM_GET_SCR_LINES	0x4
+// No params
 
-void IN_ClearStates (void);
-// restores all button and position states to defaults
+#define CCOM_SET_SCR_LINES	0x5
+// Param1 : Number of lines
 
-void IN_Commands ();
+void InitConProc (HANDLE hFile, HANDLE heventParent, HANDLE heventChild);
+void DeinitConProc (void);
+
+#endif

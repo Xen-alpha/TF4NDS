@@ -17,16 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// input.h -- external (non-keyboard) input devices
+// net_loop.h
 
-void IN_Init (void);
-
-void IN_Shutdown (void);
-
-void IN_Move (usercmd_t *cmd);
-// add additional movement on top of the keyboard move cmd
-
-void IN_ClearStates (void);
-// restores all button and position states to defaults
-
-void IN_Commands ();
+int			Loop_Init (void);
+void		Loop_Listen (qboolean state);
+void		Loop_SearchForHosts (qboolean xmit);
+qsocket_t 	*Loop_Connect (char *host);
+qsocket_t 	*Loop_CheckNewConnections (void);
+int			Loop_GetMessage (qsocket_t *sock);
+int			Loop_SendMessage (qsocket_t *sock, sizebuf_t *data);
+int			Loop_SendUnreliableMessage (qsocket_t *sock, sizebuf_t *data);
+qboolean	Loop_CanSendMessage (qsocket_t *sock);
+qboolean	Loop_CanSendUnreliableMessage (qsocket_t *sock);
+void		Loop_Close (qsocket_t *sock);
+void		Loop_Shutdown (void);

@@ -17,16 +17,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// input.h -- external (non-keyboard) input devices
+// view.h
 
-void IN_Init (void);
+extern	cvar_t		v_gamma;
 
-void IN_Shutdown (void);
+extern	byte		gammatable[256];	// palette is sent through this
+extern	byte		ramps[3][256];
+extern float v_blend[4];
 
-void IN_Move (usercmd_t *cmd);
-// add additional movement on top of the keyboard move cmd
+extern cvar_t lcd_x;
 
-void IN_ClearStates (void);
-// restores all button and position states to defaults
 
-void IN_Commands ();
+void V_Init (void);
+void V_RenderView (void);
+float V_CalcRoll (vec3_t angles, vec3_t velocity);
+void V_UpdatePalette (void);
+
