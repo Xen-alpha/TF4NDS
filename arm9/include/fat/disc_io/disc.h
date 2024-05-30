@@ -29,7 +29,7 @@
 #ifndef _DISC_H
 #define _DISC_H
 
-#include <fat/common.h>
+#include "fat\common.h"
 
 /*
 A list of all default devices to try at startup, 

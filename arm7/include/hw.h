@@ -1,7 +1,7 @@
 #ifndef __HW_H__
 #define __HW_H__
 
-#include <nds/ndstypes.h>
+#include <nds\ndstypes.h>
 
 // Wifi HW Register Indices
 #define WIFI_MODE_RST		0x0004

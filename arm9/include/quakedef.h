@@ -30,8 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma warning(disable : 4013)     // undefined: assuming extern returning int
 
 #define	VERSION				1.09
-#define	GLQUAKE_VERSION		0.97
-#define	WINQUAKE_VERSION	 2.8.9
+#define	GLQUAKE_VERSION		1.00
+#define	WINQUAKE_VERSION	0.996
 
 #define	GAMENAME	"id1"
 
@@ -221,8 +221,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	MAX_SCOREBOARDNAME	32
 
 #define	SOUND_CHANNELS		8
-
-// TODO: Copy below to new source code file
 
 #include "common.h"
 #include "bspfile.h"

@@ -41,7 +41,7 @@ static int			lowshift;
 #include <fat.h>
 //#include "IPCFifo.h"
 #include "cyg-profile.h"
-#include <fat/partition.h>
+#include "fat\partition.h"
 //#include "nds/arm9/dldi.h"
 #include <sys/stat.h>
 #include <dirent.h>
@@ -1479,7 +1479,7 @@ void Sys_Init()
 	bool ret;
 	int x, y;
 	// Turn on everything
-	// powerOn(POWER_ALL);
+	//powerON(POWER_ALL);
 
 	//put 3D on top
 	lcdMainOnTop();

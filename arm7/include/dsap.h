@@ -1,7 +1,7 @@
 #ifndef __DSAP_H__
 #define __DSAP_H__
 
-#include <nds/ndstypes.h>
+#include <nds\ndstypes.h>
 
 typedef enum {
 	WIFI_CLIENT_DISCONNECTED,

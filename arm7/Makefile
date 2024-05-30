@@ -45,7 +45,7 @@ LIBS	:=	-lhelix -lnds7
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:=	$(LIBNDS) $(CURDIR)/../helix
+LIBDIRS	:=	$(LIBNDS) /c/devl/cnquake/helix
  
   
 #---------------------------------------------------------------------------------

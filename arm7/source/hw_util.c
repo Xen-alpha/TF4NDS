@@ -1,5 +1,5 @@
-#include <nds/ndstypes.h>
-#include <nds/arm7/serial.h>
+#include <nds\ndstypes.h>
+#include <nds\arm7\serial.h>
 #include "hw.h"
 
 unsigned char hw_bb_read(unsigned short addr)

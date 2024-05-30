@@ -6,7 +6,7 @@
 #include "fnet_isr.h"
 #include "fnet_arm.h"
 #ifdef NDS
-#include <nds/timers.h>
+#include <nds\timers.h>
 #endif
 
 void fnet_cpu_timer_release( void )

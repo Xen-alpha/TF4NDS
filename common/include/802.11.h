@@ -1,7 +1,7 @@
 #ifndef __801_11_H__
 #define __801_11_H__
 
-#include <nds/ndstypes.h>
+#include <nds\ndstypes.h>
 
 typedef struct WIFI_TXHEADER {
 	u16 enable_flags;

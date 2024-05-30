@@ -1,7 +1,7 @@
 #ifndef __802_2_H__
 #define __802_2_H__
 
-#include <nds/ndstypes.h>
+#include <nds\ndstypes.h>
 
 typedef struct WIFI_LLC {
 	u8 DSAP;

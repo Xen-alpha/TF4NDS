@@ -3,8 +3,8 @@
 #include "wifi_state.h"
 #include <string.h>
 #include "hw.h"
-#include <nds/interrupts.h>
-#include <nds/fifocommon.h>
+#include <nds\interrupts.h>
+#include <nds\fifocommon.h>
 #include <math.h>
 
 void hw_interrupt();
