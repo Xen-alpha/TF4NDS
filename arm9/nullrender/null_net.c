@@ -41,7 +41,7 @@ net_driver_t net_drivers[MAX_NET_DRIVERS] =
 	Loop_Close,
 	Loop_Shutdown
 	}
-#if defined(USE_WIFI) || defined(USE_DSNIFI)
+#ifdef USE_WIFI
 	,
 	{
 	"Datagram",
@@ -62,7 +62,7 @@ net_driver_t net_drivers[MAX_NET_DRIVERS] =
 #endif
 };
 
-#if defined(USE_WIFI) || defined(USE_DSNIFI)
+#ifdef USE_WIFI
 
 int net_numdrivers = 2;
 
@@ -72,7 +72,7 @@ int net_numdrivers = 1;
 
 #endif
 
-#if defined(USE_WIFI) || defined(USE_DSNIFI)
+#ifdef USE_WIFI
 net_landriver_t	net_landrivers[MAX_NET_DRIVERS] =
 {
 	{

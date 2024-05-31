@@ -8,47 +8,60 @@ endif
 include $(DEVKITARM)/ds_rules
 
 #---------------------------------------------------------------------------------
+#%.clk.o: %.clk.c
+#	@echo $(notdir $<)
+#	$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CXXFLAGS) -finstrument-functions -mpoke-function-name -marm -c $< -o $@
+
+#---------------------------------------------------------------------------------
+%.o: %.c
+	@echo $(notdir $<)
+	$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CXXFLAGS) -c $< -o $@
+
+#---------------------------------------------------------------------------------
 # BUILD is the directory where object files & intermediate files will be placed
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 # DATA is a list of directories containing binary files
 # all directories are relative to this makefile
 #---------------------------------------------------------------------------------
-FNET		:=	../fnet_stack
 HELIX		:=	../helix
 BUILD		:=	build
-SOURCES		:=	clock dsnifi nullrender client console host misc network progs render server sound $(HELIX)/ds/arm9/source \
-				$(FNET)/cpu $(FNET)/cpu/arm $(FNET)/stack $(FNET)/services/poll $(FNET)/services/dhcp
-INCLUDES	:=	include ../common $(HELIX)/fixpt/pub   $(HELIX)/ds/common/include ../common/include \
-				$(FNET) $(FNET)/compiler $(FNET)/cpu/arm $(FNET)/cpu \
-				$(FNET)/os $(FNET)/stack $(FNET)/services $(FNET)/services/ping \
-				$(FNET)/services/dhcp $(FNET)/services/dns $(FNET)/services/poll
+SOURCES		:=	clock nullrender client render $(HELIX)/ds/arm9/source
+#SOURCES		:=	profiler clock nullrender client console host misc network progs render server sound ../common
+#SOURCES		:=	clock nullrender client console host misc network progs render server sound ../common
+INCLUDES	:=	include ../common $(HELIX)/fixpt/pub   $(HELIX)/ds/common/include
 DATA		:=
-
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:=	-mthumb -mthumb-interwork
+ARCH	:=	-marm -mthumb-interwork
 
 CFLAGS	:=	-g -Wall -O2\
+			-ffunction-sections -fdata-sections\
  			-march=armv5te -mtune=arm946e-s -fomit-frame-pointer\
 			-ffast-math \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -DARM9 -DNDS -DBYTE_DEFINED -DARM
-CFLAGS	+=  -DUSE_DSNIFI
+CFLAGS1	:=	-g -Wall -O0\
+ 			-march=armv5te -mtune=arm946e-s \
+			-ffast-math \
+			$(ARCH)
 
+CFLAGS	+=	$(INCLUDE) -DARM9 -DNDS -DBYTE_DEFINED -DARM
+CFLAGS  +=  -DUSE_WIFI
 CXXFLAGS	:=	$(CFLAGS) -fno-rtti -fno-exceptions
 
 ASFLAGS	:=	-g $(ARCH) -march=armv5te -mtune=arm946e-s
 
-LDFLAGS	=	-specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
+LDFLAGS	=	-specs=ds_arm9.specs -g $(ARCH) -Wl,--gc-sections,-Map,$(notdir $*.map)
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lfat -lnds9 -lm
+LIBS	:=   -ldswifi9 -lfat -lnds9d -lm
+#LIBS	:=  -lfat -ldswifi9 -lnds9 -lm
+# LIBS	:=  -lfat -lnds9 -lm
  
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -63,7 +76,8 @@ LIBDIRS	:=	$(LIBNDS)
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 #---------------------------------------------------------------------------------
  
-export ARM9ELF	:=	$(CURDIR)/$(TARGET).elf
+export ARM9BIN	:=	$(TOPDIR)/$(TARGET).arm9
+export ARM9ELF	:=	$(CURDIR)/$(TARGET).arm9.elf
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
@@ -113,9 +127,15 @@ clean:
 #---------------------------------------------------------------------------------
 else
  
+DEPENDS	:=	$(OFILES:.o=.d)
+ 
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
+$(ARM9BIN)	:	$(ARM9ELF)
+	@$(OBJCOPY) -O binary $< $@
+	@echo built ... $(notdir $@)
+
 $(ARM9ELF)	:	$(OFILES)
 	@echo linking $(notdir $@)
 	@$(LD)  $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
@@ -128,7 +148,8 @@ $(ARM9ELF)	:	$(OFILES)
 	@echo $(notdir $<)
 	@$(bin2o)
 
--include $(DEPSDIR)/*.d
+
+-include $(DEPENDS)
  
 #---------------------------------------------------------------------------------------
 endif

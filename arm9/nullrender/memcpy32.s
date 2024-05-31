@@ -7,7 +7,6 @@
     .align  2
     .code   32
     .global memcpy32
-	.type memcpy32 STT_FUNC
 memcpy32:
     and     r12, r2, #7     @ r12= residual word count
     movs    r2, r2, lsr #3  @ r2=block count

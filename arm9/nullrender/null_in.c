@@ -242,7 +242,7 @@ void keyboard_scankeys()
 		return;
 	}
 
-	if(scr_con_current || ((key_dest == key_game || key_dest == key_menu) && ds_osk.value))
+	if(scr_con_current || (key_dest == key_game && ds_osk.value))
 	{
 	}
 	else
@@ -265,14 +265,13 @@ void keyboard_scankeys()
 
 #ifdef NDS
 touchPosition	touch  = { 0,0,0,0 };
-	keys = keysHeld();
+	keys = keysCurrent();
 
 	if (keys & KEY_TOUCH)
 	{
 		touchRead(&touch);// = touchReadXY();
 		x = touch.px;
 		y = touch.py - vofs;
-		//Con_Printf("Touch: %d %d\n",x,y);
 		if(y < 0)
 		{
 			last_reg = key_touching = 0;
@@ -280,6 +279,7 @@ touchPosition	touch  = { 0,0,0,0 };
 			return;
 		}
 		key_in_touch = 1;
+		//Con_Printf("Touch: %d %d\n",x,y);
 	}
 	else
 	{
@@ -350,7 +350,7 @@ void draw_keyboard()
 		return;
 	}
 
-	if(scr_conlines || ((key_dest == key_game || key_dest == key_menu) && ds_osk.value))
+	if(scr_conlines || (key_dest == key_game && ds_osk.value))
 	{
 	}
 	else
@@ -536,10 +536,7 @@ extern u16 *ds_display_bottom;
 
 volatile int in_sleep_mode = 0;
 
-void IN_Commands (void) {
-}
-
-void IN_keyboard (void)
+void IN_Commands (void)
 {
 	int key;
 	static int last_index = -1;
@@ -769,24 +766,17 @@ void IN_Move (usercmd_t *cmd)
 #endif
 
 #ifdef NDS
-	int dx,dy, down, held;
-	//scanKeys();
-	down = keysDown();
-	held = keysHeld();
-	if (down & KEY_TOUCH)
+	int dx,dy;
+	scanKeys();
+	if (keysDown() & KEY_TOUCH)
 	{
 		touchRead(&g_lastTouch);// = touchReadXY();
-		//Con_Printf("t %d %d\n", g_lastTouch.px, g_lastTouch.py);
 		g_lastTouch.px <<= 7;
 		g_lastTouch.py <<= 7;
 	}
-	if(held & KEY_TOUCH)
+	if(keysHeld() & KEY_TOUCH)
 	{
 		touchRead(&g_currentTouch);// = touchReadXY();
-		/*Con_Printf("h %d %d %d %d %d %d\n", 
-			g_currentTouch.rawx, g_currentTouch.rawy,
-			g_currentTouch.px, g_currentTouch.py,
-			g_currentTouch.z1, g_currentTouch.z2);*/
 		// let's use some fixed point magic to improve touch smoothing accuracy
 		g_currentTouch.px <<= 7;
 		g_currentTouch.py <<= 7;

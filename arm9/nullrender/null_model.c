@@ -1786,11 +1786,11 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
 	if(alias_skinwidth >= alias_skinheight)
 	{
 #ifndef NDS
-#define strncasecmp strnicmp
+#define strncmpi strnicmp
 #endif
 
 #ifdef BIG_TEXTURES
-		if(alias_skinwidth >= 256 || strncasecmp(mod->name,"progs/v_",8) == 0)
+		if(alias_skinwidth >= 256 || strncmpi(mod->name,"progs/v_",8) == 0)
 		{
 			alias_skinwidth2 = ds_adjust_size3(alias_skinwidth);
 			alias_skinheight2 = ds_adjust_size3((alias_skinwidth2 * (alias_skinheight<<4)/alias_skinwidth)>>4);
@@ -1813,7 +1813,7 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
 	else
 	{
 #ifdef BIG_TEXTURES
-		if(alias_skinheight >= 256 || strncasecmp(mod->name,"progs/v_",8) == 0)
+		if(alias_skinheight >= 256 || strncmpi(mod->name,"progs/v_",8) == 0)
 		{
 			alias_skinheight2 = ds_adjust_size3(alias_skinheight);
 			alias_skinwidth2 = ds_adjust_size3((alias_skinheight2 * (alias_skinwidth<<4)/alias_skinheight)>>4);

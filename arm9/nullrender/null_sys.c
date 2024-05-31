@@ -863,11 +863,8 @@ void Sys_SendKeyEvents (void)
 	}
 }
 #else
-void IN_keyboard (void);
 void Sys_SendKeyEvents (void)
 {
-	scanKeys();
-	IN_keyboard();
 }
 #endif
 
@@ -959,98 +956,6 @@ void read_cquake_ini(quakeparms_t    *parms)
 	parms->argc = com_argc;
 	parms->argv = com_argv;
 }
-static void ds_net_draw() {
-#ifdef NDS
-	// Clear the screen
-	iprintf ("\x1b[2J");
-
-	iprintf("Choose a mode\nA to select");
-	// Move to 2nd row
-	iprintf ("\x1b[2;0H");
-	// Print line of dashes
-	iprintf ("--------------------------------");
-
-	// Set row
-	iprintf ("\x1b[3;0H [   Single Player   ]");
-	iprintf ("\x1b[4;0H [   Access Point    ]");
-	iprintf ("\x1b[5;0H [ Connect to DSNIFI ]");
-	iprintf ("\x1b[6;0H [ Create new DSNIFI ]");
-#endif
-}
-
-#ifdef NDS
-void dsnifi_connect_to_ap();
-void dsnifi_start_host();
-#endif
-
-static void ds_net_choose() {
-#ifdef NDS
-	int pressed = 0, pos = 0;
-
-	ds_net_draw();
-
-	while (true) {
-		int i;
-		// Clear old cursors
-		for (i = 0; i < 4; i++) {
-			iprintf ("\x1b[%d;0H ", i+3);
-		}
-		// Show cursor
-		iprintf ("\x1b[%d;0H*", pos + 3);
-		
-		// Power saving loop. Only poll the keys once per frame and sleep the CPU if there is nothing else to do
-		do {
-			scanKeys();
-			pressed = keysDown();
-			swiWaitForVBlank();
-		} while (!pressed);
-	
-		if (pressed & KEY_UP)
-		{
-			pos -= 1;
-			if (pos < 0)
-			{
-				pos = 4 - 1;		// Wrap around to bottom of list
-			}
-		}
-		if (pressed & KEY_DOWN)
-		{
-			pos += 1;
-			if (pos >= 4)
-			{
-				pos = 0;		// Wrap around to top of list
-			}
-		}
-		
-		
-		if (pressed & KEY_A) {
-			int dhcp = 0;
-
-			// Clear the screen
-			iprintf ("\x1b[2J");
-			if(pos != 0) {
-				wifi_init();
-			}
-
-			switch (pos) {
-			case 1:
-				dhcp = 1;
-			case 2:
-				printf("searching...\n");
-				dsnifi_connect_to_ap();
-				break;
-			case 3:
-				printf("starting host...\n");
-				dsnifi_start_host();
-				break;
-			}
-			wifi_fnet_init(dhcp);
-			return;
-		}	
-	}
-#endif
-}
-
 #define DIR_LIST_COUNT 20
 void ds_choose_draw(char *dirlist[],int total,int pos)
 {
@@ -1122,7 +1027,7 @@ void ds_choose_game(char *base)
 	    		ret = stat(pent->d_name,&st);
 				if(S_ISDIR(st.st_mode))
 				{
-					if(strcasecmp(pent->d_name,GAMENAME) == 0 || 
+					if(strcmpi(pent->d_name,GAMENAME) == 0 || 
 						strcmp(pent->d_name,"..") == 0 ||
 						strcmp(pent->d_name,".") == 0)
 						continue;
@@ -1149,9 +1054,8 @@ void ds_choose_game(char *base)
 	ds_choose_draw(dirlist,dircount,pos);
 
 	while (true) {
-		int i;
 		// Clear old cursors
-		for (i = 0; i < DIR_LIST_COUNT; i++) {
+		for (int i = 0; i < DIR_LIST_COUNT; i++) {
 			iprintf ("\x1b[%d;0H ", i+3);
 		}
 		// Show cursor
@@ -1261,7 +1165,7 @@ void quake_main (int argc, char **argv)
 	}
 #ifdef NDS
 	if(__dsimode) {
-		parms.memsize = 13.5f*1024*1024;
+		parms.memsize = 14*1024*1024;
 	} else {
 		parms.memsize = MINIMUM_MEMORY;
 		enable_texture_cache = 0;
@@ -1467,13 +1371,6 @@ extern const u8 default_font_bin[];
 
 void VID_loadPal();
 
-#ifdef USE_DSNIFI
-
-	int wifi_init();
-
-#endif
-
-
 void Sys_Init()
 {
 	bool ret;
@@ -1537,12 +1434,6 @@ void Sys_Init()
 
 #ifdef USE_WIFI
 Wifi_InitDefault(true);
-#endif
-
-#ifdef USE_DSNIFI
-
-	ds_net_choose();
-
 #endif
 
 	lcdMainOnBottom();
@@ -1671,7 +1562,6 @@ void Sys_Init()
 
 	Sys_InitFloatTime ();
 	initDisplay();
-	wifi_fnet_init(0);
 }
 #endif
 
