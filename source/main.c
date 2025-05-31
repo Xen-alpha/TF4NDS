@@ -1,6 +1,8 @@
 #include <stdio.h>
 
 #include <nds.h>
+#include <fat.h>
+#include <filesystem.h>
 #include <host.h>
 
 
@@ -8,12 +10,31 @@ int main(int argc, char **argv)
 {
     // Enable 3D
     videoSetMode(MODE_0_3D);
-
+    
     // Setup some VRAM as memory for main engine background, main engine
     // sprites, and 3D textures.
-    consoleDemoInit();
+    // consoleDemoInit();
 
+    // Initialize NitroFS
+    /*
+    bool init_ok = nitroFSInit(NULL);
+    if (!init_ok)
+    {
+        // Handle error
+        printf("Failed to initialize NitroFS\n");
+        while (1)
+          swiWaitForVBlank();
+    }
+    */
+
+    // set main 3d engine: 3D mode, 256x192, 16bpp, Total 512KB
     init3D();
+
+    // set main 2d engine: BG2 only, 256x256, 8bpp, Total 64KB
+    vramSetBankE(VRAM_E_MAIN_BG); // 상단 BG
+    vramSetBankG(VRAM_G_LCD);  // 버퍼 용도로 바꿔 CPU 및 디스플레이 엔진의 렌더링 접근을 막는다.
+    vramSetBankH(VRAM_H_SUB_BG);      // 하단 BG
+    vramSetBankI(VRAM_I_SUB_SPRITE);    // 하단 디스플레이용 스프라이트
 
     // Setup done
     // ==========

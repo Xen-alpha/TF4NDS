@@ -1,11 +1,19 @@
 #include <nds.h>
 #include <stdio.h>
 #include <host.h>
-#include <camera.h>
 
 #include "BACKTILE.h"
 
 int textureID;
+
+void loadCamera() {
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(70, 256.0 / 192.0, 0.1, 100.0);
+  gluLookAt(0.0, 0.0, 2.0,  // Position
+            0.0, 0.0, 0.0,  // Look at
+            0.0, 1.0, 0.0); // Up    
+}
 
 void init3D() {
     glInit();
@@ -17,7 +25,12 @@ void init3D() {
     glClearDepth(0x7FFF);
 
     glViewport(0, 0, 255, 191);
+    // 3D Texture: total 512KB
     vramSetBankA(VRAM_A_TEXTURE);
+    vramSetBankB(VRAM_B_TEXTURE);
+    vramSetBankC(VRAM_C_TEXTURE);
+    vramSetBankD(VRAM_D_TEXTURE);
+    vramSetBankF(VRAM_F_TEX_PALETTE); // 16KB, Texture palette
 
     // Load texture
     glGenTextures(1, &textureID);
@@ -33,6 +46,8 @@ void init3D() {
     loadCamera();
 
 }
+
+
 
 void drawFrame(int angle_x, int angle_z) {
     glMatrixMode(GL_MODELVIEW);
