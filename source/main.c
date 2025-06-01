@@ -1,10 +1,10 @@
 #include <stdio.h>
 
 #include <nds.h>
-#include <fat.h>
 #include <filesystem.h>
 #include <host.h>
 
+#include <nds/arm9/dldi.h>
 
 int main(int argc, char **argv)
 {
@@ -13,7 +13,22 @@ int main(int argc, char **argv)
     
     // Setup some VRAM as memory for main engine background, main engine
     // sprites, and 3D textures.
-    // consoleDemoInit();
+    setBrightness(2, 0);
+
+    // set main 2d engine: BG2 only, 256x256, 8bpp, Total 64KB
+    vramSetBankE(VRAM_E_MAIN_BG); // 상단 BG
+    vramSetBankH(VRAM_H_SUB_BG);      // 하단 BG
+    vramSetBankI(VRAM_I_LCD);     // 버퍼 용도로 바꿔 CPU 및 디스플레이 엔진의 렌더링 접근을 막는다.
+
+    // set main 3d engine: 3D mode, 256x192, 16bpp, Total 512KB
+    init3D();
+
+    // Bank H에 할당된 VRAM을 하단 스크린에 할당
+    videoSetModeSub(MODE_0_2D);
+
+    REG_BG0CNT_SUB = BG_MAP_BASE(2) | BG_TILE_BASE(0) | BG_PRIORITY(0);
+
+    consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
 
     // Initialize NitroFS
     /*
@@ -25,18 +40,10 @@ int main(int argc, char **argv)
         while (1)
           swiWaitForVBlank();
     }
-    */
-
-    // set main 3d engine: 3D mode, 256x192, 16bpp, Total 512KB
-    init3D();
-
-    // set main 2d engine: BG2 only, 256x256, 8bpp, Total 64KB
-    vramSetBankE(VRAM_E_MAIN_BG); // 상단 BG
-    vramSetBankG(VRAM_G_LCD);  // 버퍼 용도로 바꿔 CPU 및 디스플레이 엔진의 렌더링 접근을 막는다.
-    vramSetBankH(VRAM_H_SUB_BG);      // 하단 BG
-    vramSetBankI(VRAM_I_SUB_SPRITE);    // 하단 디스플레이용 스프라이트
+      */  
 
     // Setup done
+    printf("Device Initialized\n");
     // ==========
 
     int angle_x = 0;

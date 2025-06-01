@@ -30,7 +30,9 @@ void init3D() {
     vramSetBankB(VRAM_B_TEXTURE);
     vramSetBankC(VRAM_C_TEXTURE);
     vramSetBankD(VRAM_D_TEXTURE);
-    vramSetBankF(VRAM_F_TEX_PALETTE); // 16KB, Texture palette
+    // TODO: 이게 필요할지 안 필요할지 모르겠다. 텍스처가 16bit 그래픽이면 아래 뱅크는 다른 데로 돌리자.
+    vramSetBankF(VRAM_F_TEX_PALETTE); // 16KB, Texture palette slot 0
+    vramSetBankG(VRAM_G_TEX_PALETTE_SLOT1); // 16KB, Texture palette slot 1
 
     // Load texture
     glGenTextures(1, &textureID);
