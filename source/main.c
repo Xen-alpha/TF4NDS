@@ -1,10 +1,9 @@
 #include <stdio.h>
 
 #include <nds.h>
+#include <fat.h>
 #include <filesystem.h>
 #include <host.h>
-
-#include <nds/arm9/dldi.h>
 
 int main(int argc, char **argv)
 {
@@ -23,6 +22,7 @@ int main(int argc, char **argv)
     // set main 3d engine: 3D mode, 256x192, 16bpp, Total 512KB
     init3D();
 
+    
     // Bank H에 할당된 VRAM을 하단 스크린에 할당
     videoSetModeSub(MODE_0_2D);
 
@@ -31,7 +31,6 @@ int main(int argc, char **argv)
     consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
 
     // Initialize NitroFS
-    /*
     bool init_ok = nitroFSInit(NULL);
     if (!init_ok)
     {
@@ -40,7 +39,7 @@ int main(int argc, char **argv)
         while (1)
           swiWaitForVBlank();
     }
-      */  
+    
 
     // Setup done
     printf("Device Initialized\n");
