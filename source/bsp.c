@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <filesystem.h>
 #include <nds.h>
 #include "bsp.h"
@@ -6,24 +8,49 @@
 
 FILE* bspFile;
 
-int loadBSP(const char* path) {
-    bspFile = fopen(path, "rb");
-    if (!bspFile) return 0;
+static void* read_lump(FILE* f, lump_t lump, int entrySize, int* countOut) {
+    int count = lump.filelen / entrySize;
+    void* buffer = malloc(lump.filelen);
+    if (!buffer) return NULL;
+    fseek(f, lump.fileofs, SEEK_SET);
+    fread(buffer, lump.filelen, 1, f);
+    if (countOut) *countOut = count;
+    return buffer;
+}
 
-    BSPHeader header;
-    fread(&header, sizeof(BSPHeader), 1, bspFile);
+bool load_bsp_map(const char* filename, dmap_t* outMap) {
+    memset(outMap, 0, sizeof(dmap_t));
 
-    if (strncmp(header.magic, "IBSP", 4) != 0 || header.version != 29) {
-        fclose(bspFile);
-        return 0;
+    FILE* f = fopen(filename, "rb");
+    if (!f) {
+        printf("Failed to open BSP\n");
+        return false;
     }
 
-    // 예: Vertex Lump 로드
-    fseek(bspFile, header.lumps[3].offset, SEEK_SET); // LUMP_VERTICES
-    int numVertices = header.lumps[3].length / sizeof(Vertex);
-    Vertex* verts = malloc(sizeof(Vertex) * numVertices);
-    fread(verts, sizeof(Vertex), numVertices, bspFile);
+    dheader_t header;
+    fread(&header, sizeof(header), 1, f);
+    
+    if (header.version != BSP_VERSION) { // 
+        printf("Invalid BSP version\n");
+        fclose(f);
+        return false;
+    }
 
-    // 계속 face, texture 등 파싱 가능
-    return 1;
+    outMap->vertices = read_lump(f, header.lumps[2], sizeof(dvertex_t), &outMap->numVertices);
+    outMap->edges = read_lump(f, header.lumps[10], sizeof(dedge_t), &outMap->numEdges);
+    outMap->surfedges = read_lump(f, header.lumps[11], sizeof(int), &outMap->numSurfEdges);
+    outMap->faces = read_lump(f, header.lumps[5], sizeof(dface_t), &outMap->numFaces);
+    outMap->texinfos = read_lump(f, header.lumps[4], sizeof(texinfo_t), &outMap->numTexInfos);
+
+    fclose(f);
+    return true;
+}
+
+void free_bsp_map(dmap_t* map) {
+    free(map->vertices);
+    free(map->edges);
+    free(map->surfedges);
+    free(map->faces);
+    free(map->texinfos);
+    memset(map, 0, sizeof(dmap_t));
 }

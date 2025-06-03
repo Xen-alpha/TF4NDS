@@ -3,6 +3,8 @@
  * Originally written by Randy Linden
  * Modified by Xen-alpha
  ********************************************************************************/
+#pragma once
+#include <nds.h>
 typedef struct TVector3               // 3D Vector
 {
    int x, y, z,u, v, d;
@@ -176,6 +178,7 @@ typedef struct {
 } dmodel_t;
 
 typedef struct {
+    // char            magic[4];	// "IBSP"
     int             version;
     lump_t          lumps[HEADER_LUMPS];
 } dheader_t;
@@ -252,7 +255,7 @@ typedef struct {
 
 #define   MAXLIGHTMAPS   4
 typedef struct {
-    short           planenum;   // The plane in which the face lies
+    int           planenum;   // The plane in which the face lies
     short           side;	// 0 if in front of the plane, 1 if behind the plane
 
     int             firstedge;  // first edge in the List of edges
@@ -334,3 +337,20 @@ split lines, appears in 3-D space as a convex polytope.*/
 //==============================
 //==============================
 
+// bsp information structure
+typedef struct {
+    int numVertices;
+    dvertex_t* vertices;
+
+    int numEdges;
+    dedge_t* edges;
+
+    int numSurfEdges;
+    int* surfedges;
+
+    int numFaces;
+    dface_t* faces;
+
+    int numTexInfos;
+    texinfo_t* texinfos;
+} dmap_t;

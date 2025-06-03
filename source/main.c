@@ -4,6 +4,9 @@
 #include <fat.h>
 #include <filesystem.h>
 #include <host.h>
+#include <bsp.h>
+
+dmap_t map;
 
 int main(int argc, char **argv)
 {
@@ -44,6 +47,14 @@ int main(int argc, char **argv)
     // Setup done
     printf("Device Initialized\n");
     // ==========
+    // Load BSP map
+    if (!load_bsp_map("introseq.bsp", &map)) {
+        printf("Failed to load BSP\n");
+        while (1)
+          swiWaitForVBlank();
+    }
+
+    // ==========
 
     int angle_x = 0;
     int angle_z = 0;
@@ -52,6 +63,7 @@ int main(int argc, char **argv)
     {
         // set UI on the bottom screen
         loadUI();
+        printf("Loaded BSP\nVertices: %d\nFaces: %d\n", map.numVertices, map.numFaces);
 
         // Handle user input
         // -----------------
@@ -79,6 +91,8 @@ int main(int argc, char **argv)
         swiWaitForVBlank();
     }
     // Exit the 3D engine
+
+    free_bsp_map(&map);
 
     return 0;
 
