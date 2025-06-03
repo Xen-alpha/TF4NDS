@@ -28,6 +28,7 @@ void cameraUpdateView(Camera* cam) {
 void cameraMove(Camera* cam, float forward, float strafe) {
     cam->x += forward * cosf(cam->yaw) + strafe * sinf(cam->yaw);
     cam->z += forward * -sinf(cam->yaw) + strafe * cosf(cam->yaw);
+    glTranslatef(cam->x, cam->y, cam->z);
 }
 
 void cameraTurn(Camera* cam, float deltaYaw, float deltaPitch) {
@@ -36,4 +37,5 @@ void cameraTurn(Camera* cam, float deltaYaw, float deltaPitch) {
 
     if (cam->pitch > 1.5f) cam->pitch = 1.5f;
     if (cam->pitch < -1.5f) cam->pitch = -1.5f;
+    glRotatef(cam->pitch * (180.0f / M_PI), cam->yaw * (180.0f / M_PI), 0.0f, 0.0f);
 }

@@ -4,3 +4,4 @@
 
 bool load_bsp_map(const char* filename, dmap_t* outMap);
 void free_bsp_map(dmap_t* map);
+void draw_bsp_faces(const dmap_t* map);

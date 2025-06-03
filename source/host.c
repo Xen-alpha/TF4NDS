@@ -1,11 +1,12 @@
 #include <nds.h>
 #include <stdio.h>
 #include <host.h>
+#include <camera.h>
 
 #include "BACKTILE.h"
 
 int textureID;
-
+extern Camera* camera;
 void loadCamera() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -35,6 +36,7 @@ void init3D() {
     vramSetBankG(VRAM_G_TEX_PALETTE_SLOT1); // 16KB, Texture palette slot 1
 
     // Load texture
+    /*
     glGenTextures(1, &textureID);
     glBindTexture(0, textureID);
 
@@ -44,13 +46,14 @@ void init3D() {
         while (1)
             swiWaitForVBlank();
     }
-
-    loadCamera();
-
+    */
+    // loadCamera();
+    initCamera(camera);
+    cameraUpdateView(camera);
 }
 
 
-
+/*
 void drawFrame(int angle_x, int angle_z) {
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -82,7 +85,7 @@ void drawFrame(int angle_x, int angle_z) {
 
     glFlush(0);
 }
-
+*/
 void loadUI () {
   // Print some text in the demo console
   // -----------------------------------
@@ -90,7 +93,7 @@ void loadUI () {
   consoleClear();
 
   // Print some controls
-  printf("PAD: Rotate quad\n");
+  printf("PAD: View map\n");
   printf("START:   Exit to loader\n");
   printf("\n");
 }

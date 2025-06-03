@@ -77,7 +77,7 @@ typedef struct {
 } vector;
 
 typedef struct {
-    fixang          tx, ty, tz;
+    v16          tx, ty, tz;
 } angvec;
 
 typedef struct {
@@ -197,7 +197,7 @@ typedef struct miptex_s {
 
 
 typedef struct {
-    int           point[3];
+    float           point[3];
 } dvertex_t;
 
 

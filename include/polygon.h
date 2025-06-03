@@ -1,4 +1,5 @@
-// BSP에서 추출한 단순화된 구조체들
+// 단순화된 구조체들
+// BSP와 엔티티가 공유 예정
 
 typedef struct {
     fixed12d3 x, y, z;
@@ -19,5 +20,3 @@ typedef struct {
     char side;
     char tex_id;
 } Face;
-
-void renderBSPFaces();

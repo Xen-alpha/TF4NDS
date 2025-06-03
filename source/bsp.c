@@ -54,3 +54,44 @@ void free_bsp_map(dmap_t* map) {
     free(map->texinfos);
     memset(map, 0, sizeof(dmap_t));
 }
+
+void draw_bsp_faces(const dmap_t* map) {
+    for (int i = 0; i < map->numFaces; i++) {
+        const dface_t* face = &map->faces[i];
+        if (face->numedges < 3) continue;
+
+        glBegin(GL_TRIANGLES);
+
+        // Triangle fan: (v0, v1, v2), (v0, v2, v3), ...
+        int first = face->firstedge;
+        int count = face->numedges;
+
+        int v0Index = map->surfedges[first];
+        v0Index = (v0Index >= 0)
+                  ? map->edges[v0Index].v[0]
+                  : map->edges[-v0Index].v[1];
+
+        dvertex_t v0 = map->vertices[v0Index];
+
+        for (int j = 1; j < count - 1; j++) {
+            int edge1 = map->surfedges[first + j];
+            int edge2 = map->surfedges[first + j + 1];
+
+            int vi1 = (edge1 >= 0)
+                      ? map->edges[edge1].v[0]
+                      : map->edges[-edge1].v[1];
+            int vi2 = (edge2 >= 0)
+                      ? map->edges[edge2].v[0]
+                      : map->edges[-edge2].v[1];
+
+            dvertex_t v1 = map->vertices[vi1];
+            dvertex_t v2 = map->vertices[vi2];
+
+            glVertex3v16(floattov16(v0.point[0]), floattov16(v0.point[1]), floattov16(v0.point[2]));
+            glVertex3v16(floattov16(v1.point[0]), floattov16(v1.point[1]), floattov16(v1.point[2]));
+            glVertex3v16(floattov16(v2.point[0]), floattov16(v2.point[1]), floattov16(v2.point[2]));
+        }
+
+        glEnd();
+    }
+}

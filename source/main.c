@@ -5,11 +5,15 @@
 #include <filesystem.h>
 #include <host.h>
 #include <bsp.h>
+#include <camera.h>
 
 dmap_t map;
+Camera* camera;
 
 int main(int argc, char **argv)
 {
+
+    camera = (Camera*)malloc(sizeof(Camera));
     // Enable 3D
     videoSetMode(MODE_0_3D);
     
@@ -53,6 +57,8 @@ int main(int argc, char **argv)
         while (1)
           swiWaitForVBlank();
     }
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
     // ==========
 
@@ -84,8 +90,15 @@ int main(int argc, char **argv)
 
         if (keys & KEY_START)
             break;
-        
-        drawFrame(angle_x, angle_z);
+        // Update camera
+        cameraMove(camera, (keys & KEY_UP) ? 0.1f : 0, (keys & KEY_LEFT) ? -0.1f : (keys & KEY_RIGHT) ? 0.1f : 0);
+        cameraTurn(camera, (keys & KEY_LEFT) ? -0.05f : (keys & KEY_RIGHT) ? 0.05f : 0, (keys & KEY_UP) ? -0.05f : (keys & KEY_DOWN) ? 0.05f : 0);
+
+        // Draw the BSP map
+        glClearColor(0, 0, 0, 31);
+        glClearDepth(GL_MAX_DEPTH);
+        draw_bsp_faces(&map);
+        glFlush(0);
 
         // Synchronize game loop to the screen refresh
         swiWaitForVBlank();
@@ -93,6 +106,7 @@ int main(int argc, char **argv)
     // Exit the 3D engine
 
     free_bsp_map(&map);
+    free(camera);
 
     return 0;
 
