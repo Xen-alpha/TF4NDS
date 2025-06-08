@@ -5,6 +5,9 @@
  ********************************************************************************/
 #pragma once
 #include <nds.h>
+
+//==================================
+// Structures for Entities, Polygons, Vectors, etc.
 typedef struct TVector3               // 3D Vector
 {
    int x, y, z,u, v, d;
@@ -139,9 +142,10 @@ typedef struct {
 
 
 #define BSPVERSION   29
+// #define MAX_TEXTURES 256 // libnds.h가 이미 정의하고 있음
 
 typedef struct {
-    int             fileofs, filelen;
+    int            offset, length;
 } lump_t;
 
 // lump types
@@ -164,21 +168,20 @@ typedef struct {
 #define   LUMP_MARKSURFACES 	11
 #define   LUMP_EDGES      	12
 #define   LUMP_SURFEDGES   	13
-#define   LUMP_MODELS      	14
+#define   LUMP_MODELS      	1
 
 #define   HEADER_LUMPS   15
 
 typedef struct {
     float           mins[3], maxs[3];
     float           origin[3];
-    int             headnode[MAX_MAP_HULLS];
+    int             headNode[MAX_MAP_HULLS];
     int             visleafs;	// not including the solid leaf 0
 
     int             firstface, numfaces;
 } dmodel_t;
 
 typedef struct {
-    // char            magic[4];	// "IBSP"
     int             version;
     lump_t          lumps[HEADER_LUMPS];
 } dheader_t;
@@ -189,15 +192,21 @@ typedef struct {
 } dmiptexlump_t;
 
 #define   MIPLEVELS   4
+typedef struct {
+  long numtextures;	// number of textures in the lump
+  long dataofs[MIPLEVELS];	// offsets to the miptex data for each mip level
+} mipheader_t;
+
 typedef struct miptex_s {
     char            name[16];
-    unsigned        width, height;
-    unsigned        offsets[MIPLEVELS];		// four mip maps stored
+    unsigned int        width, height;
+    unsigned int        offsets[MIPLEVELS];		// four mip maps stored
 } miptex_t;
 
-
 typedef struct {
-    float           point[3];
+    float           x;
+    float           y;
+    float           z;
 } dvertex_t;
 
 
@@ -212,8 +221,8 @@ typedef struct {
 #define   PLANE_ANYZ      5
 
 typedef struct {
-    int           normal[3]; //float
-    int           dist;      //float
+    float           normal[3]; //float
+    float           dist;      //float
     int             type;// PLANE_X - PLANE_ANYZ ?remove? trivial to regenerate
 
 } dplane_t;
@@ -221,14 +230,14 @@ typedef struct {
 
 // !!! if this is changed, it must be changed in asm_i386.h too !!!
 typedef struct {
-    int             planenum;
+    int             planeIndex;	// The plane in which the node lies
     short           children[2];// negative numbers are -(leafs+1), not nodes
-
+    // unsigned short?
     short           mins[3];	// for sphere culling
-
+    // unsigned short?
     short           maxs[3];
-    unsigned short  firstface;
-    unsigned short  numfaces;	// counting both sides
+    unsigned short  firstface; // unsigned short?
+    unsigned short  numfaces;	// counting both sides, unsigned short?
 } dnode_t;
 
 typedef struct {
@@ -238,11 +247,9 @@ typedef struct {
 
 
 typedef struct texinfo_s {
-    int           vecs[2][4];	// [s/t][xyz offset]
+    float           vecs[2][4];	// [s/t][xyz offset]
     int             miptex;// Index of Mip Texture
     int             flags; //animated: 0 for ordinary textures, 1 for water
-    int width;
-    int height;
 } texinfo_t;
 
 #define TEX_SPECIAL   1		// sky or slime, no lightmap or 256 subdivision
@@ -255,19 +262,19 @@ typedef struct {
 
 #define   MAXLIGHTMAPS   4
 typedef struct {
-    int           planenum;   // The plane in which the face lies
+    short           planenum;   // The plane in which the face lies
     short           side;	// 0 if in front of the plane, 1 if behind the plane
 
-    int             firstedge;  // first edge in the List of edges
+    long             firstEdge;  // first edge in the List of edges
 
-    short           numedges;   // number of edges in the List of edges
-    short           texinfo;    // index of the Texture info the face is part of
+    short           numEdges;   // number of edges in the List of edges
+    short           texInfo;    // index of the Texture info the face is part of
     // lighting info
 //    byte            styles[MAXLIGHTMAPS];
-    uchar typelight;            // type of lighting, for the face
-    uchar baselight;            // from 0xFF (dark) to 0 (bright)
-    uchar light[2];             // two additional light models
-    int             lightofs;
+    unsigned char typelight;            // type of lighting, for the face
+    unsigned char baselight;            // from 0xFF (dark) to 0 (bright)
+    unsigned char light[2];             // two additional light models
+    long             lightofs;
 	       // Pointer inside the general lightmap, or -1
 	       // defines the start of the face lightmap
     // start of [numstyles*surfsize] samples
@@ -296,14 +303,16 @@ typedef struct {
 // leaf 0 is the generic CONTENTS_SOLID leaf, used for all solid areas
 // all other leafs need visibility info
 typedef struct {
+    unsigned short  firstMarkSurface; // First item of the list of faces
+    unsigned short  numMarkSurfaces;  // Number of faces in the leaf
+
     int             contents;	// type of leaf
     int             visofs;	// -1 = no visibility info
 
     short           mins[3];	// Bounding box of the leaf.
     short           maxs[3];	// for frustum culling
 
-    unsigned short  firstmarksurface; // First item of the list of faces
-    unsigned short  nummarksurfaces;  // Number of faces in the leaf
+    
 
     byte            ambient_level[NUM_AMBIENTS];
     // level of the four ambient sounds
@@ -335,10 +344,20 @@ Technically, each tree leaf, made of some faces and bound by the BSP node
 split lines, appears in 3-D space as a convex polytope.*/
 
 //==============================
+
 //==============================
 
 // bsp information structure
 typedef struct {
+    dmodel_t* models;
+    int numModels;
+
+    dnode_t* nodes;
+    int numNodes;
+
+    dleaf_t* leafs;
+    int numLeafs;
+
     int numVertices;
     dvertex_t* vertices;
 
@@ -346,11 +365,17 @@ typedef struct {
     dedge_t* edges;
 
     int numSurfEdges;
-    int* surfedges;
+    int* surfEdges;
+
+    int32_t* markSurfaces;
+    int numMarkSurfaces;
 
     int numFaces;
     dface_t* faces;
 
     int numTexInfos;
     texinfo_t* texinfos;
+
+    int numTextures;
+    miptex_t* textures;
 } dmap_t;

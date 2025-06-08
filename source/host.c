@@ -5,8 +5,7 @@
 
 #include "BACKTILE.h"
 
-int textureID;
-extern Camera* camera;
+extern Camera* cam;
 void loadCamera() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -35,57 +34,12 @@ void init3D() {
     vramSetBankF(VRAM_F_TEX_PALETTE); // 16KB, Texture palette slot 0
     vramSetBankG(VRAM_G_TEX_PALETTE_SLOT1); // 16KB, Texture palette slot 1
 
-    // Load texture
-    /*
-    glGenTextures(1, &textureID);
-    glBindTexture(0, textureID);
-
-    if (glTexImage2D(0, 0, GL_RGBA, 64, 64, 0, TEXGEN_TEXCOORD, BACKTILEBitmap) == 0)
-    {
-        printf("Failed to load texture\n");
-        while (1)
-            swiWaitForVBlank();
-    }
-    */
     // loadCamera();
-    initCamera(camera);
-    cameraUpdateView(camera);
+    initCamera(cam);
+    
 }
 
 
-/*
-void drawFrame(int angle_x, int angle_z) {
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glRotateZ(angle_z);
-    glRotateX(angle_x);
-
-    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
-
-    glBindTexture(0, textureID);
-
-    glColor3f(1, 1, 1);
-
-    glBegin(GL_QUADS);
-
-      GFX_TEX_COORD = (TEXTURE_PACK(0, inttot16(64)));
-      glVertex3v16(floattov16(-1), floattov16(-1), 0);
-
-      GFX_TEX_COORD = (TEXTURE_PACK(inttot16(64),inttot16(64)));
-      glVertex3v16(floattov16(1), floattov16(-1), 0);
-
-      GFX_TEX_COORD = (TEXTURE_PACK(inttot16(64), 0));
-      glVertex3v16(floattov16(1), floattov16(1), 0);
-
-      GFX_TEX_COORD = (TEXTURE_PACK(0,0));
-      glVertex3v16(floattov16(-1), floattov16(1), 0);
-
-    glEnd();
-    glPopMatrix(1);
-
-    glFlush(0);
-}
-*/
 void loadUI () {
   // Print some text in the demo console
   // -----------------------------------

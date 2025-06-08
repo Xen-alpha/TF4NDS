@@ -2,6 +2,11 @@
   "files.associations": {
     "ios": "c",
     "xiosbase": "c",
-    "camera.h": "c"
+    "camera.h": "c",
+    "system_error": "c",
+    "xlocale": "c",
+    "polygon.h": "c",
+    "texture.h": "c",
+    "struct.h": "c"
   }
 }

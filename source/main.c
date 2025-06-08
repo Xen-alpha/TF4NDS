@@ -6,14 +6,15 @@
 #include <host.h>
 #include <bsp.h>
 #include <camera.h>
+#include <texture.h>
 
-dmap_t map;
-Camera* camera;
+dmap_t *map_game = NULL;
+Camera* cam;
 
 int main(int argc, char **argv)
 {
 
-    camera = (Camera*)malloc(sizeof(Camera));
+    cam = (Camera*)malloc(sizeof(Camera));
     // Enable 3D
     videoSetMode(MODE_0_3D);
     
@@ -51,16 +52,19 @@ int main(int argc, char **argv)
     // Setup done
     printf("Device Initialized\n");
     // ==========
+    // Load textures
+    initTexture();
+    printf("Load Texture Successfully\n");
     // Load BSP map
-    if (!load_bsp_map("introseq.bsp", &map)) {
+    if (!loadBSP(map_game, "introseq.bsp")) {
         printf("Failed to load BSP\n");
         while (1)
           swiWaitForVBlank();
     }
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
 
     // ==========
+    printf("Load BSP Successfully\n");
+    // -----------------
 
     int angle_x = 0;
     int angle_z = 0;
@@ -69,10 +73,8 @@ int main(int argc, char **argv)
     {
         // set UI on the bottom screen
         loadUI();
-        printf("Loaded BSP\nVertices: %d\nFaces: %d\n", map.numVertices, map.numFaces);
-
+        printf("Loaded BSP\nVertices: %d\nEdges: %d\nFaces: %d\n", map_game->numVertices, map_game->numEdges, map_game->numFaces);
         // Handle user input
-        // -----------------
 
         scanKeys();
 
@@ -91,22 +93,23 @@ int main(int argc, char **argv)
         if (keys & KEY_START)
             break;
         // Update camera
-        cameraMove(camera, (keys & KEY_UP) ? 0.1f : 0, (keys & KEY_LEFT) ? -0.1f : (keys & KEY_RIGHT) ? 0.1f : 0);
-        cameraTurn(camera, (keys & KEY_LEFT) ? -0.05f : (keys & KEY_RIGHT) ? 0.05f : 0, (keys & KEY_UP) ? -0.05f : (keys & KEY_DOWN) ? 0.05f : 0);
+        cameraMove(cam, (keys & KEY_UP) ? 0.1f : 0, (keys & KEY_LEFT) ? -0.1f : (keys & KEY_RIGHT) ? 0.1f : 0);
+        cameraTurn(cam, (keys & KEY_LEFT) ? -0.05f : (keys & KEY_RIGHT) ? 0.05f : 0, (keys & KEY_UP) ? -0.05f : (keys & KEY_DOWN) ? 0.05f : 0);
 
         // Draw the BSP map
         glClearColor(0, 0, 0, 31);
         glClearDepth(GL_MAX_DEPTH);
-        draw_bsp_faces(&map);
+        renderVisibleFaces(map_game, cam->x, cam->y, cam->z);
         glFlush(0);
 
         // Synchronize game loop to the screen refresh
         swiWaitForVBlank();
     }
     // Exit the 3D engine
+    
 
-    free_bsp_map(&map);
-    free(camera);
+    freeBSP(map_game);
+    free(cam);
 
     return 0;
 
