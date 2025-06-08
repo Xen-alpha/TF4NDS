@@ -392,7 +392,7 @@ void loadTexture(const char* name, const u8* data, int texSizeX, int texSizeY) {
 
     glBindTexture(0, textureGLIDs[id]);
 
-    glTexImage2D(0, 0, GL_RGBA, texSizeX, texSizeY, 0,
+    glTexImage2D(0, 0, GL_RGB, texSizeX, texSizeY, 0,
                  TEXGEN_TEXCOORD, (u8*)data);
     textureData[numTextures] = (u16*)data;
     numTextures++;

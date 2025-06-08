@@ -100,9 +100,63 @@ dvertex_t* bsp_GetVertexFromFace(const dmap_t *map, const dface_t* face, int loc
 
 extern int textureGLIDs[MAX_TEXTURES];
 
+lightmap_info_t calcLightmapInfo (const dmap_t *map, const dface_t* face) {
+    texinfo_t* texinfo = &map->texinfos[face->texInfo];
+    float umin = 1e9, umax = -1e9;
+    float vmin = 1e9, vmax = -1e9;
+
+    for (int i = 0; i < face->numEdges; i++) {
+        int edgeIndex = map->surfEdges[face->firstEdge + i];
+        dedge_t edge = map->edges[abs(edgeIndex)];
+        dvertex_t vertex = (edgeIndex >= 0) ? map->vertices[edge.v[0]] : map->vertices[edge.v[1]];
+
+        // world 좌표 → 텍스처 좌표 변환
+        float x = vertex.x, y = vertex.y, z = vertex.z;
+
+        float u = texinfo->vecs[0][0]*x + texinfo->vecs[0][1]*y + texinfo->vecs[0][2]*z + texinfo->vecs[0][3];
+        float v = texinfo->vecs[1][0]*x + texinfo->vecs[1][1]*y + texinfo->vecs[1][2]*z + texinfo->vecs[1][3];
+
+        if (u < umin) umin = u;
+        if (u > umax) umax = u;
+        if (v < vmin) vmin = v;
+        if (v > vmax) vmax = v;
+    }
+
+    // lightmap은 16 단위 그리드 기준으로 정렬됨 (Quake 규칙)
+    lightmap_info_t info;
+    info.minU = umin;
+    info.minV = vmin;
+    info.w = ((int)(umax - umin) / 16) + 1;
+    info.h = ((int)(vmax - vmin) / 16) + 1;
+    return info;
+
+}
+
+void getLightmapUV(const dvertex_t* vtx, const texinfo_t* tex, const lightmap_info_t* lmInfo, float* outU, float* outV) {
+    float u = tex->vecs[0][0]*vtx->x + tex->vecs[0][1]*vtx->y + tex->vecs[0][2]*vtx->z + tex->vecs[0][3];
+    float v = tex->vecs[1][0]*vtx->x + tex->vecs[1][1]*vtx->y + tex->vecs[1][2]*vtx->z + tex->vecs[1][3];
+
+    // Offset to lightmap space
+    *outU = (u - lmInfo->minU) / (float)lmInfo->w;
+    *outV = (v - lmInfo->minV) / (float)lmInfo->h;
+}
+
+// 빛 강도 추출 (lightmap의 값이 있다고 가정)
+int getLightLevelAt(float u, float v, const lightmap_info_t* lmInfo, const uint8_t* lightmapData) {
+    int x = (int)(u * lmInfo->w);
+    int y = (int)(v * lmInfo->h);
+
+    // 경계 체크
+    if (x < 0 || x >= lmInfo->w || y < 0 || y >= lmInfo->h) return 255;
+
+    return lightmapData[y * lmInfo->w + x];
+}
+
+
 void drawTexturedFace(const dmap_t *map, const dface_t* face) {
     texinfo_t* texinfo = &map->texinfos[face->texInfo];
     miptex_t* texture = &map->textures[texinfo->miptex];
+    lightmap_info_t lmInfo = calcLightmapInfo(map, face);
 
     glBindTexture(0, textureGLIDs[texinfo->miptex]);
 
@@ -116,9 +170,27 @@ void drawTexturedFace(const dmap_t *map, const dface_t* face) {
         computeUV(&map->texinfos[face->texInfo], v0, &u0, &v0_, texture->width, texture->height);
         computeUV(&map->texinfos[face->texInfo], v1, &u1, &v1_, texture->width, texture->height);
         computeUV(&map->texinfos[face->texInfo], v2, &u2, &v2_, texture->width, texture->height);
-
+        
         glTexCoord2f(u0, v0_); glVertex3f(v0->x, v0->z, -v0->y); // Quake는 Y축이 위로, Z축이 앞으로
         glTexCoord2f(u1, v1_); glVertex3f(v1->x, v1->z, -v1->y); // NDS는 Y축이 앞으로, Z축이 위로
+        glTexCoord2f(u2, v2_); glVertex3f(v2->x, v2->z, -v2->y);
+        
+        // 빛맵 UV 계산
+        getLightmapUV(v0, texinfo, &lmInfo, &u0, &v0_);
+        int light0 = getLightLevelAt(u0, v0_, &lmInfo, &map->lightData[face->lightofs]);
+        getLightmapUV(v1, texinfo, &lmInfo, &u1, &v1_);
+        int light1 = getLightLevelAt(u1, v1_, &lmInfo, &map->lightData[face->lightofs]);
+        getLightmapUV(v2, texinfo, &lmInfo, &u2, &v2_);
+        int light2 = getLightLevelAt(u2, v2_, &lmInfo, &map->lightData[face->lightofs]);
+
+        int brightness = light0 >> 1; // 0~255
+        glColor3b(brightness, brightness, brightness);
+        glTexCoord2f(u0, v0_); glVertex3f(v0->x, v0->z, -v0->y); // Quake는 Y축이 위로, Z축이 앞으로
+        brightness = light1 >> 1;
+        glColor3b(brightness, brightness, brightness);
+        glTexCoord2f(u1, v1_); glVertex3f(v1->x, v1->z, -v1->y); // NDS는 Y축이 앞으로, Z축이 위로
+        brightness = light2 >> 1;
+        glColor3b(brightness, brightness, brightness);
         glTexCoord2f(u2, v2_); glVertex3f(v2->x, v2->z, -v2->y);
     }
     glEnd();
@@ -162,6 +234,7 @@ int loadBSP(dmap_t* map, const char* filename) {
     map->edges = loadLump(file, header.lumps[12], sizeof(dedge_t), &map->numEdges);
     map->surfEdges = loadLump(file, header.lumps[11], sizeof(int32_t), &map->numSurfEdges);
     map->markSurfaces = loadLump(file, header.lumps[14], sizeof(int32_t), &map->numMarkSurfaces);
+    map->lightData = loadLump(file, header.lumps[LUMP_LIGHTING], 1, &map->lightDataSize);
 
     fclose(file);
     return 1;

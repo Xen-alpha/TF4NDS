@@ -345,6 +345,11 @@ split lines, appears in 3-D space as a convex polytope.*/
 
 //==============================
 
+typedef struct {
+    float minU, minV;
+    int w, h;
+} lightmap_info_t;
+
 //==============================
 
 // bsp information structure
@@ -378,4 +383,7 @@ typedef struct {
 
     int numTextures;
     miptex_t* textures;
+
+    byte* lightData;
+    int lightDataSize;
 } dmap_t;
