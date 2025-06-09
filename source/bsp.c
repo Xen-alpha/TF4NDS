@@ -17,8 +17,8 @@ void* loadLump(FILE* file, lump_t lump, int elemSize, int* count) {
 }
 
 /// Lump ID 0이 plane
-static dplane_t* bsp_planes;
-static int bsp_numPlanes;
+dplane_t* bsp_planes;
+int bsp_numPlanes;
 
 void bsp_LoadPlanes(FILE* file, lump_t lump) {
     bsp_numPlanes = lump.length / sizeof(dplane_t);
@@ -214,7 +214,7 @@ void renderVisibleFaces(const dmap_t *map, float camX, float camY, float camZ) {
 int loadBSP(dmap_t* map, const char* filename) {
     FILE* file = fopen(filename, "rb");
     if (!file) return 0;
-
+    
     dheader_t header;
     fread(&header, sizeof(header), 1, file);
 
@@ -224,17 +224,29 @@ int loadBSP(dmap_t* map, const char* filename) {
         return 0;
     }
 
-    bsp_LoadPlanes(file, header.lumps[0]);
-    map->models = loadLump(file, header.lumps[7], sizeof(dmodel_t), &map->numModels);
-    map->vertices = loadLump(file, header.lumps[3], sizeof(dvertex_t), &map->numVertices);
-    map->nodes = loadLump(file, header.lumps[5], sizeof(dnode_t), &map->numNodes);
-    map->leafs = loadLump(file, header.lumps[10], sizeof(dleaf_t), &map->numLeafs);
-    map->faces = loadLump(file, header.lumps[13], sizeof(dface_t), &map->numFaces);
-    map->texinfos = loadLump(file, header.lumps[6], sizeof(texinfo_t), &map->numTexInfos);
-    map->edges = loadLump(file, header.lumps[12], sizeof(dedge_t), &map->numEdges);
-    map->surfEdges = loadLump(file, header.lumps[11], sizeof(int32_t), &map->numSurfEdges);
-    map->markSurfaces = loadLump(file, header.lumps[14], sizeof(int32_t), &map->numMarkSurfaces);
-    map->lightData = loadLump(file, header.lumps[LUMP_LIGHTING], 1, &map->lightDataSize);
+    // TODO: Entity load, VISIBILITY load, clipnode load
+    bsp_LoadPlanes(file, header.lumps[LUMP_PLANES]);
+    printf("BSP: plane loaded\n");
+    map->models = loadLump(file, header.lumps[LUMP_MODELS], sizeof(dmodel_t), &map->numModels);
+    printf("BSP: models loaded\n");
+    map->vertices = loadLump(file, header.lumps[LUMP_VERTEXES], sizeof(dvertex_t), &map->numVertices);
+    printf("BSP: vertices loaded\n");
+    map->nodes = loadLump(file, header.lumps[LUMP_NODES], sizeof(dnode_t), &map->numNodes);
+    printf("BSP: nodes loaded\n");
+    map->leafs = loadLump(file, header.lumps[LUMP_LEAFS], sizeof(dleaf_t), &map->numLeafs);
+    printf("BSP: leaves loaded\n");
+    map->faces = loadLump(file, header.lumps[LUMP_FACES], sizeof(dface_t), &map->numFaces);
+    printf("BSP: faces loaded\n");
+    map->texinfos = loadLump(file, header.lumps[LUMP_TEXINFO], sizeof(texinfo_t), &map->numTexInfos);
+    printf("BSP: texture info loaded\n");
+    map->edges = loadLump(file, header.lumps[LUMP_EDGES], sizeof(dedge_t), &map->numEdges);
+    printf("BSP: edges loaded\n");
+    map->surfEdges = loadLump(file, header.lumps[LUMP_SURFEDGES], sizeof(long), &map->numSurfEdges);
+    printf("BSP: surfEdges loaded\n");
+    map->markSurfaces = loadLump(file, header.lumps[LUMP_MARKSURFACES], sizeof(long), &map->numMarkSurfaces);
+    printf("BSP: markSurfaces loaded\n");
+    map->lightData = loadLump(file, header.lumps[LUMP_LIGHTING], sizeof(char), &map->lightDataSize);
+    printf("BSP: Light loaded\n");
 
     fclose(file);
     return 1;
@@ -242,6 +254,7 @@ int loadBSP(dmap_t* map, const char* filename) {
 
 void freeBSP(dmap_t* map) {
     if (!map) return;
+    free(map->lightData);
     free(map->markSurfaces);
     free(map->surfEdges);
     free(map->edges);

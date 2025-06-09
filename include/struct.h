@@ -168,7 +168,7 @@ typedef struct {
 #define   LUMP_MARKSURFACES 	11
 #define   LUMP_EDGES      	12
 #define   LUMP_SURFEDGES   	13
-#define   LUMP_MODELS      	1
+#define   LUMP_MODELS      	14
 
 #define   HEADER_LUMPS   15
 

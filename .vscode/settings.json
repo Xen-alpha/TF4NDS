@@ -7,6 +7,8 @@
     "xlocale": "c",
     "polygon.h": "c",
     "texture.h": "c",
-    "struct.h": "c"
+    "struct.h": "c",
+    "xstring": "c",
+    "xutility": "c"
   }
 }

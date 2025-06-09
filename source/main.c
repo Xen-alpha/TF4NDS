@@ -38,6 +38,10 @@ int main(int argc, char **argv)
 
     consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
 
+    // Load textures
+    initTexture();
+    printf("Load Texture Successfully\n");
+
     // Initialize NitroFS
     bool init_ok = nitroFSInit(NULL);
     if (!init_ok)
@@ -52,11 +56,9 @@ int main(int argc, char **argv)
     // Setup done
     printf("Device Initialized\n");
     // ==========
-    // Load textures
-    initTexture();
-    printf("Load Texture Successfully\n");
+    
     // Load BSP map
-    if (!loadBSP(map_game, "introseq.bsp")) {
+    if (!loadBSP(map_game, "e0m1.bsp")) {
         printf("Failed to load BSP\n");
         while (1)
           swiWaitForVBlank();
@@ -69,6 +71,8 @@ int main(int argc, char **argv)
     int angle_x = 0;
     int angle_z = 0;
 
+    glClearColor(0, 0, 0, 31);
+    glClearDepth(GL_MAX_DEPTH);
     while (1)
     {
         // set UI on the bottom screen
@@ -97,8 +101,6 @@ int main(int argc, char **argv)
         cameraTurn(cam, (keys & KEY_LEFT) ? -0.05f : (keys & KEY_RIGHT) ? 0.05f : 0, (keys & KEY_UP) ? -0.05f : (keys & KEY_DOWN) ? 0.05f : 0);
 
         // Draw the BSP map
-        glClearColor(0, 0, 0, 31);
-        glClearDepth(GL_MAX_DEPTH);
         renderVisibleFaces(map_game, cam->x, cam->y, cam->z);
         glFlush(0);
 

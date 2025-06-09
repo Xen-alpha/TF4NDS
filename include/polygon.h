@@ -2,16 +2,10 @@
 // BSP와 엔티티가 공유 예정
 
 typedef struct {
-    fixed12d3 x, y, z;
+    float x, y, z;  // 정점 좌표
+    float u, v;     // 텍스처 좌표
+    float nx, ny, nz; // 법선 벡터
 } Vertex;
-
-typedef struct {
-    unsigned short v[2];  // 2개의 정점 인덱스 (edge용)
-} Edge;
-
-typedef struct {
-    int edge_id;  // edge 배열의 인덱스
-} FaceEdge;
 
 typedef struct {
     int first_edge;   // face에 해당하는 edge 시작 위치
