@@ -1,4 +1,4 @@
 
 void init3D();
-// void drawFrame();
+void loadCamera();
 void loadUI();

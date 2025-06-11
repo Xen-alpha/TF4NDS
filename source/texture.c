@@ -3,6 +3,8 @@
 #include <nds.h>
 
 // texture data
+#include <BACKTILE.h>
+/*
 #include <ANUM_0.h>
 #include <ANUM_1.h>
 #include <ANUM_2.h>
@@ -16,7 +18,7 @@
 #include <ANUM_COLON.h>
 #include <ANUM_MINUS.h>
 #include <ANUM_SLASH.h>
-#include <BACKTILE.h>
+
 #include <bigbox.h>
 #include <box_bl.h>
 #include <box_bm.h>
@@ -186,19 +188,20 @@
 #include <sell.h>
 #include <ttl_main.h>
 #include <TURTLE.h>
+*/
 
 // Texture storage(preset: MAX_TEXTURES = 256)
 
-u16* textureData[MAX_TEXTURES];     // DS VRAM 주소
-int   textureGLIDs[MAX_TEXTURES];   // GL texture ID
-char  textureNames[MAX_TEXTURES][16];
-int   numTextures = 0;
+//unsigned short* textureData[MAX_TEXTURES];     // DS VRAM 주소
+//int   textureGLIDs[MAX_TEXTURES];   // GL texture ID
+//char  textureNames[MAX_TEXTURES][16];
+//int   numTextures = 0;
 
 void initTexture() {
-
-    glGenTextures(MAX_TEXTURES, textureGLIDs);
-
+    
     loadTexture("BACKTILE", BACKTILEBitmap, 128, 128, BACKTILEPal);
+    /*
+    
     loadTexture("ANUM_0", ANUM_0Bitmap, 24, 24, ANUM_0Pal);
     loadTexture("ANUM_1", ANUM_1Bitmap, 24, 24, ANUM_1Pal);
     loadTexture("ANUM_2", ANUM_2Bitmap, 24, 24, ANUM_2Pal);
@@ -381,6 +384,7 @@ void initTexture() {
     loadTexture("sell", sellBitmap, 320, 200, sellPal);
     loadTexture("ttl_main", ttl_mainBitmap, 214, 24, ttl_mainPal);
     loadTexture("TURTLE", TURTLEBitmap, 32, 32, TURTLEPal);
+    */
     // read pcx player textures
 
 }
@@ -389,22 +393,16 @@ void initTexture() {
 // Note that texture memory must be set to VRAM_F_LCD/VRAM_G_LCD befor copying texture data
 // and the bank must be reverted
 void loadTexture(const char* name, const u8* data, int texSizeX, int texSizeY, const u16* palette) {
-    if (numTextures >= MAX_TEXTURES) return;
-
-    int id = numTextures;
-    strncpy(textureNames[id], name, 16);
-
-    glBindTexture(0, textureGLIDs[id]);
+    glGenTextures(1, 0);
+    glBindTexture(0, 0);
 
     glColorTableEXT(0, 0, 256, 0, 0, palette);
     
-    glTexImage2D(0, 0, GL_RGBA, texSizeX, texSizeY, 0,
-                 TEXGEN_TEXCOORD, (u8*)data);
-    textureData[numTextures] = (u16*)data;
-    numTextures++;
+    glTexImage2D(0, 0, GL_RGB256, texSizeX, texSizeY, 0,
+                 0, (u8*)data);
 }
 
-
+/*
 void bindFaceTexture(const dmap_t* map, const dface_t* face) {
     const texinfo_t* texinfo = &map->texinfos[face->texInfo];
     const miptex_t* texture = &map->textures[texinfo->miptex];
@@ -418,3 +416,4 @@ void bindFaceTexture(const dmap_t* map, const dface_t* face) {
         }
     }
 }
+*/

@@ -5,16 +5,11 @@
 #include <filesystem.h>
 #include <host.h>
 #include <bsp.h>
-#include <camera.h>
-#include <texture.h>
 
 dmap_t *map_game = NULL;
-Camera* cam;
 
 int main(int argc, char **argv)
 {
-
-    cam = (Camera*)malloc(sizeof(Camera));
     // Enable 3D
     videoSetMode(MODE_0_3D);
     
@@ -22,13 +17,14 @@ int main(int argc, char **argv)
     // sprites, and 3D textures.
     setBrightness(2, 0);
 
+    // set main 3d engine: 3D mode, 256x192, 16bpp, Total 512KB
+    init3D();
+    loadCamera();
+
     // set main 2d engine: BG2 only, 256x256, 8bpp, Total 64KB
     vramSetBankE(VRAM_E_MAIN_BG); // 상단 BG
     vramSetBankH(VRAM_H_SUB_BG);      // 하단 BG
     vramSetBankI(VRAM_I_LCD);     // 버퍼 용도로 바꿔 CPU 및 디스플레이 엔진의 렌더링 접근을 막는다.
-
-    // set main 3d engine: 3D mode, 256x192, 16bpp, Total 512KB
-    init3D();
 
     
     // Bank H에 할당된 VRAM을 하단 스크린에 할당
@@ -39,7 +35,6 @@ int main(int argc, char **argv)
     consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
 
     // Load textures
-    initTexture();
     printf("Load Texture Successfully\n");
 
     // Initialize NitroFS
@@ -57,8 +52,9 @@ int main(int argc, char **argv)
     printf("Device Initialized\n");
     // ==========
     
-    // Load BSP map
-    if (!loadBSP(map_game, "e0m1.bsp")) {
+    // Load BSP 
+    map_game = (dmap_t *) malloc(sizeof(dmap_t));
+    if (!loadBSP(map_game, "introseq.bsp")) {
         printf("Failed to load BSP\n");
         while (1)
           swiWaitForVBlank();
@@ -71,8 +67,6 @@ int main(int argc, char **argv)
     int angle_x = 0;
     int angle_z = 0;
 
-    glClearColor(0, 0, 0, 31);
-    glClearDepth(GL_MAX_DEPTH);
     while (1)
     {
         // set UI on the bottom screen
@@ -97,11 +91,8 @@ int main(int argc, char **argv)
         if (keys & KEY_START)
             break;
         // Update camera
-        cameraMove(cam, (keys & KEY_UP) ? 0.1f : 0, (keys & KEY_LEFT) ? -0.1f : (keys & KEY_RIGHT) ? 0.1f : 0);
-        cameraTurn(cam, (keys & KEY_LEFT) ? -0.05f : (keys & KEY_RIGHT) ? 0.05f : 0, (keys & KEY_UP) ? -0.05f : (keys & KEY_DOWN) ? 0.05f : 0);
-
         // Draw the BSP map
-        renderVisibleFaces(map_game, cam->x, cam->y, cam->z);
+        //renderVisibleFaces(map_game, cam->x, cam->y, cam->z);
         glFlush(0);
 
         // Synchronize game loop to the screen refresh
@@ -111,7 +102,8 @@ int main(int argc, char **argv)
     
 
     freeBSP(map_game);
-    free(cam);
+    free(map_game);
+    //free(cam);
 
     return 0;
 

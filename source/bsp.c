@@ -16,17 +16,7 @@ void* loadLump(FILE* file, lump_t lump, int elemSize, int* count) {
     return buffer;
 }
 
-/// Lump ID 0이 plane
-dplane_t* bsp_planes;
-int bsp_numPlanes;
-
-void bsp_LoadPlanes(FILE* file, lump_t lump) {
-    bsp_numPlanes = lump.length / sizeof(dplane_t);
-    bsp_planes = malloc(lump.length);
-    fseek(file, lump.offset, SEEK_SET);
-    fread(bsp_planes, lump.length, 1, file);
-}
-
+/*
 /// 내부: 평면과 점의 거리
 float pointOnPlaneSide(const float* point, const dplane_t* plane) {
     return point[0] * plane->normal[0] +
@@ -67,35 +57,6 @@ dleaf_t* bsp_FindLeaf(const dmap_t *map, float x, float y, float z) {
     
   }
   return NULL;
-}
-
-void computeUV(const texinfo_t* texinfo, const dvertex_t* v, float* outU, float* outV, float width, float height) {
-    float u = texinfo->vecs[0][0] * v->x +
-              texinfo->vecs[0][1] * v->y +
-              texinfo->vecs[0][2] * v->z +
-              texinfo->vecs[0][3];
-
-    float v_ = texinfo->vecs[1][0] * v->x +
-               texinfo->vecs[1][1] * v->y +
-               texinfo->vecs[1][2] * v->z +
-               texinfo->vecs[1][3];
-
-    // 정규화
-    *outU = u / width;
-    *outV = v_ / height;
-}
-
-dvertex_t* bsp_GetVertexFromFace(const dmap_t *map, const dface_t* face, int localIndex) {
-    int edgeIndex = map->surfEdges[face->firstEdge + localIndex];
-    int reversed = 0;
-    if (edgeIndex < 0) {
-        edgeIndex = -edgeIndex;
-        reversed = 1;
-    }
-
-    dedge_t* edge = &map->edges[edgeIndex];
-    int vi = reversed ? edge->v[1] : edge->v[0];
-    return &map->vertices[vi];
 }
 
 extern int textureGLIDs[MAX_TEXTURES];
@@ -152,15 +113,45 @@ int getLightLevelAt(float u, float v, const lightmap_info_t* lmInfo, const uint8
     return lightmapData[y * lmInfo->w + x];
 }
 
+*/
+
+void computeUV(const texinfo_t* texinfo, const dvertex_t* v, float* outU, float* outV, float width, float height) {
+    float u = texinfo->vecs[0][0] * v->x +
+              texinfo->vecs[0][1] * v->y +
+              texinfo->vecs[0][2] * v->z +
+              texinfo->vecs[0][3];
+
+    float v_ = texinfo->vecs[1][0] * v->x +
+               texinfo->vecs[1][1] * v->y +
+               texinfo->vecs[1][2] * v->z +
+               texinfo->vecs[1][3];
+
+    // 정규화
+    *outU = u / width;
+    *outV = v_ / height;
+}
+
+dvertex_t* bsp_GetVertexFromFace(const dmap_t *map, const dface_t* face, int localIndex) {
+    int edgeIndex = map->surfEdges[face->firstEdge + localIndex];
+    int reversed = 0;
+    if (edgeIndex < 0) {
+        edgeIndex = -edgeIndex;
+        reversed = 1;
+    }
+
+    dedge_t* edge = &map->edges[edgeIndex];
+    int vi = reversed ? edge->v[1] : edge->v[0];
+    return &map->vertices[vi];
+}
 
 void drawTexturedFace(const dmap_t *map, const dface_t* face) {
     texinfo_t* texinfo = &map->texinfos[face->texInfo];
     miptex_t* texture = &map->textures[texinfo->miptex];
-    lightmap_info_t lmInfo = calcLightmapInfo(map, face);
+    // lightmap_info_t lmInfo = calcLightmapInfo(map, face);
 
-    glBindTexture(0, textureGLIDs[texinfo->miptex]);
+    // glBindTexture(0, textureGLIDs[texinfo->miptex]);
 
-    glBegin(GL_TRIANGLES);
+    glBegin(GL_TRIANGLE);
     for (int i = 0; i < face->numEdges; ++i) {
         dvertex_t* v0 = bsp_GetVertexFromFace(map, face, 0);
         dvertex_t* v1 = bsp_GetVertexFromFace(map, face, i);
@@ -171,10 +162,11 @@ void drawTexturedFace(const dmap_t *map, const dface_t* face) {
         computeUV(&map->texinfos[face->texInfo], v1, &u1, &v1_, texture->width, texture->height);
         computeUV(&map->texinfos[face->texInfo], v2, &u2, &v2_, texture->width, texture->height);
         
-        glTexCoord2f(u0, v0_); glVertex3f(v0->x, v0->z, -v0->y); // Quake는 Y축이 위로, Z축이 앞으로
-        glTexCoord2f(u1, v1_); glVertex3f(v1->x, v1->z, -v1->y); // NDS는 Y축이 앞으로, Z축이 위로
-        glTexCoord2f(u2, v2_); glVertex3f(v2->x, v2->z, -v2->y);
+        glTexCoord2f(u0, v0_); glVertex3f(v0->x, v0->y, v0->z); // Quake는 Y축이 위로, Z축이 앞으로
+        glTexCoord2f(u1, v1_); glVertex3f(v1->x, v1->y, v1->z); // NDS는 Y축이 앞으로, Z축이 위로
+        glTexCoord2f(u2, v2_); glVertex3f(v2->x, v2->y, v2->z);
         
+        /*
         // 빛맵 UV 계산
         getLightmapUV(v0, texinfo, &lmInfo, &u0, &v0_);
         int light0 = getLightLevelAt(u0, v0_, &lmInfo, &map->lightData[face->lightofs]);
@@ -192,21 +184,22 @@ void drawTexturedFace(const dmap_t *map, const dface_t* face) {
         brightness = light2 >> 1;
         glColor3b(brightness, brightness, brightness);
         glTexCoord2f(u2, v2_); glVertex3f(v2->x, v2->z, -v2->y);
+        */
     }
     glEnd();
 }
 
 void renderVisibleFaces(const dmap_t *map, float camX, float camY, float camZ) {
-    dleaf_t* leaf = bsp_FindLeaf(map, camX, camY, camZ);
-    if (!leaf) return;
+    //dleaf_t* leaf = bsp_FindLeaf(map, camX, camY, camZ);
+    //if (!leaf) return;
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    for (int i = 0; i < leaf->numMarkSurfaces; ++i) {
-        int faceIndex = map->markSurfaces[leaf->firstMarkSurface + i];
-        if (faceIndex < 0 || faceIndex >= map->numFaces) continue;
+    for (int i = 0; i < map->numFaces; ++i) {
+        //int faceIndex = map->markSurfaces[leaf->firstMarkSurface + i];
+        //if (faceIndex < 0 || faceIndex >= map->numFaces) continue;
 
-        dface_t* face = &map->faces[faceIndex];
+        dface_t* face = &map->faces[i];
         drawTexturedFace(map, face);
     }
 }
@@ -225,7 +218,7 @@ int loadBSP(dmap_t* map, const char* filename) {
     }
 
     // TODO: Entity load, VISIBILITY load, clipnode load
-    bsp_LoadPlanes(file, header.lumps[LUMP_PLANES]);
+    map->planes = loadLump(file, header.lumps[LUMP_PLANES], sizeof(dplane_t), &map->numPlanes);
     printf("BSP: plane loaded\n");
     map->models = loadLump(file, header.lumps[LUMP_MODELS], sizeof(dmodel_t), &map->numModels);
     printf("BSP: models loaded\n");
@@ -264,6 +257,7 @@ void freeBSP(dmap_t* map) {
     free(map->nodes);
     free(map->vertices);
     free(map->models);
+    free(map->planes);
     
     memset(map, 0, sizeof(dmap_t));
 }

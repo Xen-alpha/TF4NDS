@@ -354,6 +354,9 @@ typedef struct {
 
 // bsp information structure
 typedef struct {
+    dplane_t* planes;
+    int numPlanes;
+
     dmodel_t* models;
     int numModels;
 

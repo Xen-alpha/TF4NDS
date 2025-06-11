@@ -33,7 +33,8 @@ SOURCEDIRS	?= source
 INCLUDEDIRS	?= include
 GFXDIRS		?= graphics
 BINDIRS		?= bin
-AUDIODIRS	?= audio audio/ambience audio/boss1 audio/buttons audio/demon audio/dog audio/doors audio/hknight audio/items audio/knight audio/misc audio/ogre audio/plats audio/player audio/shambler audio/soldier audio/speech audio/weapons audio/wizard audio/zombie
+AUDIODIRS	?= audio
+# audio/ambience audio/boss1 audio/buttons audio/demon audio/dog audio/doors audio/hknight audio/items audio/knight audio/misc audio/ogre audio/plats audio/player audio/shambler audio/soldier audio/speech audio/weapons audio/wizard audio/zombie
 # Folder to combine into the root of NitroFS:
 NITROFSDIR	?= nitrofs
 
