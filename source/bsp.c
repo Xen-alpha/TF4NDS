@@ -16,7 +16,20 @@ void* loadLump(FILE* file, lump_t lump, int elemSize, int* count) {
     return buffer;
 }
 
-/*
+miptex_t ** readTextureContents(const unsigned char * texture_data, int *sectionSize) {
+  miptexheader_t *miptex_header = (miptexheader_t *) texture_data;
+  miptex_t **result = (miptex_t **) malloc(sizeof(miptex_t *) * miptex_header->numtextures);
+  if (!result) {
+    printf("Out of memory for texture!\n");
+    return NULL;
+  }
+  *sectionSize = miptex_header->numtextures;
+  for (int i = 0 ; i < miptex_header->numtextures; i++) {
+    result[i] = (miptex_t *)(&texture_data[miptex_header->dataofs[i]]);
+  }
+  return result;
+}
+
 /// 내부: 평면과 점의 거리
 float pointOnPlaneSide(const float* point, const dplane_t* plane) {
     return point[0] * plane->normal[0] +
@@ -36,7 +49,7 @@ dleaf_t* bsp_FindLeaf(const dmap_t *map, float x, float y, float z) {
         }
         while (nodeIndex >= 0) {
           dnode_t* node = &map->nodes[nodeIndex];
-          dplane_t* plane = &bsp_planes[node->planeIndex];
+          dplane_t* plane = &map->planes[node->planeIndex];
 
           float side = pointOnPlaneSide((float[]){x, y, z}, plane);
 
@@ -58,8 +71,6 @@ dleaf_t* bsp_FindLeaf(const dmap_t *map, float x, float y, float z) {
   }
   return NULL;
 }
-
-extern int textureGLIDs[MAX_TEXTURES];
 
 lightmap_info_t calcLightmapInfo (const dmap_t *map, const dface_t* face) {
     texinfo_t* texinfo = &map->texinfos[face->texInfo];
@@ -113,7 +124,7 @@ int getLightLevelAt(float u, float v, const lightmap_info_t* lmInfo, const uint8
     return lightmapData[y * lmInfo->w + x];
 }
 
-*/
+
 
 void computeUV(const texinfo_t* texinfo, const dvertex_t* v, float* outU, float* outV, float width, float height) {
     float u = texinfo->vecs[0][0] * v->x +
@@ -146,10 +157,8 @@ dvertex_t* bsp_GetVertexFromFace(const dmap_t *map, const dface_t* face, int loc
 
 void drawTexturedFace(const dmap_t *map, const dface_t* face) {
     texinfo_t* texinfo = &map->texinfos[face->texInfo];
-    miptex_t* texture = &map->textures[texinfo->miptex];
-    // lightmap_info_t lmInfo = calcLightmapInfo(map, face);
-
-    // glBindTexture(0, textureGLIDs[texinfo->miptex]);
+    miptex_t* texture = map->textures[texinfo->miptex];
+    lightmap_info_t lmInfo = calcLightmapInfo(map, face);
 
     glBegin(GL_TRIANGLE);
     for (int i = 0; i < face->numEdges; ++i) {
@@ -166,7 +175,7 @@ void drawTexturedFace(const dmap_t *map, const dface_t* face) {
         glTexCoord2f(u1, v1_); glVertex3f(v1->x, v1->y, v1->z); // NDS는 Y축이 앞으로, Z축이 위로
         glTexCoord2f(u2, v2_); glVertex3f(v2->x, v2->y, v2->z);
         
-        /*
+        
         // 빛맵 UV 계산
         getLightmapUV(v0, texinfo, &lmInfo, &u0, &v0_);
         int light0 = getLightLevelAt(u0, v0_, &lmInfo, &map->lightData[face->lightofs]);
@@ -177,29 +186,29 @@ void drawTexturedFace(const dmap_t *map, const dface_t* face) {
 
         int brightness = light0 >> 1; // 0~255
         glColor3b(brightness, brightness, brightness);
-        glTexCoord2f(u0, v0_); glVertex3f(v0->x, v0->z, -v0->y); // Quake는 Y축이 위로, Z축이 앞으로
+        glTexCoord2f(u0, v0_); glVertex3f(v0->x, v0->y, v0->z); // Quake는 Y축이 위로, Z축이 앞으로
         brightness = light1 >> 1;
         glColor3b(brightness, brightness, brightness);
-        glTexCoord2f(u1, v1_); glVertex3f(v1->x, v1->z, -v1->y); // NDS는 Y축이 앞으로, Z축이 위로
+        glTexCoord2f(u1, v1_); glVertex3f(v1->x, v1->y, v1->z); // NDS는 Y축이 앞으로, Z축이 위로
         brightness = light2 >> 1;
         glColor3b(brightness, brightness, brightness);
-        glTexCoord2f(u2, v2_); glVertex3f(v2->x, v2->z, -v2->y);
-        */
+        glTexCoord2f(u2, v2_); glVertex3f(v2->x, v2->y, v2->z);
+        
     }
     glEnd();
 }
 
 void renderVisibleFaces(const dmap_t *map, float camX, float camY, float camZ) {
-    //dleaf_t* leaf = bsp_FindLeaf(map, camX, camY, camZ);
-    //if (!leaf) return;
+    dleaf_t* leaf = bsp_FindLeaf(map, camX, camY, camZ);
+    if (!leaf) return;
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    for (int i = 0; i < map->numFaces; ++i) {
-        //int faceIndex = map->markSurfaces[leaf->firstMarkSurface + i];
-        //if (faceIndex < 0 || faceIndex >= map->numFaces) continue;
+    for (int i = 0; i < leaf->numMarkSurfaces; ++i) {
+        int faceIndex = map->markSurfaces[leaf->firstMarkSurface + i];
+        if (faceIndex < 0 || faceIndex >= map->numFaces) continue;
 
-        dface_t* face = &map->faces[i];
+        dface_t* face = &map->faces[faceIndex];
         drawTexturedFace(map, face);
     }
 }
@@ -232,6 +241,8 @@ int loadBSP(dmap_t* map, const char* filename) {
     printf("BSP: faces loaded\n");
     map->texinfos = loadLump(file, header.lumps[LUMP_TEXINFO], sizeof(texinfo_t), &map->numTexInfos);
     printf("BSP: texture info loaded\n");
+    map->textureData = loadLump(file, header.lumps[LUMP_TEXTURES], sizeof(unsigned char), &map->texDataLength);
+    map->textures = readTextureContents(map->textureData, &map->numTextures);
     map->edges = loadLump(file, header.lumps[LUMP_EDGES], sizeof(dedge_t), &map->numEdges);
     printf("BSP: edges loaded\n");
     map->surfEdges = loadLump(file, header.lumps[LUMP_SURFEDGES], sizeof(long), &map->numSurfEdges);

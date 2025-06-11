@@ -6,6 +6,8 @@ void initCamera(Camera* cam) {
     cam->x = 0; cam->y = 1.5; cam->z = 0;
     cam->pitch = 0;
     cam->yaw = 0;
+
+    cameraUpdateView(cam);
 }
 
 void cameraUpdateView(Camera* cam) {

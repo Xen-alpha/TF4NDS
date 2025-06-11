@@ -194,8 +194,8 @@ typedef struct {
 #define   MIPLEVELS   4
 typedef struct {
   long numtextures;	// number of textures in the lump
-  long dataofs[MIPLEVELS];	// offsets to the miptex data for each mip level
-} mipheader_t;
+  long dataofs[4];	// offsets to the miptex data for each mip level
+} miptexheader_t;
 
 typedef struct miptex_s {
     char            name[16];
@@ -384,8 +384,12 @@ typedef struct {
     int numTexInfos;
     texinfo_t* texinfos;
 
+    // Texture storage(preset: MAX_TEXTURES = 256)
+    int texDataLength;
+    unsigned char* textureData;     // DS VRAM 주소
+    
     int numTextures;
-    miptex_t* textures;
+    miptex_t **textures;
 
     byte* lightData;
     int lightDataSize;

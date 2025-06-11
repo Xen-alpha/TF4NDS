@@ -5,11 +5,13 @@
 #include <filesystem.h>
 #include <host.h>
 #include <bsp.h>
+#include <camera.h>
 
 dmap_t *map_game = NULL;
 
 int main(int argc, char **argv)
 {
+    Camera * cam = (Camera *) malloc(sizeof(Camera));
     // Enable 3D
     videoSetMode(MODE_0_3D);
     
@@ -46,7 +48,7 @@ int main(int argc, char **argv)
         while (1)
           swiWaitForVBlank();
     }
-    
+    initCamera(cam);
 
     // Setup done
     printf("Device Initialized\n");
@@ -91,8 +93,9 @@ int main(int argc, char **argv)
         if (keys & KEY_START)
             break;
         // Update camera
+        cameraUpdateView(cam); 
         // Draw the BSP map
-        //renderVisibleFaces(map_game, cam->x, cam->y, cam->z);
+        renderVisibleFaces(map_game, cam->x, cam->y, cam->z);
         glFlush(0);
 
         // Synchronize game loop to the screen refresh
@@ -103,7 +106,7 @@ int main(int argc, char **argv)
 
     freeBSP(map_game);
     free(map_game);
-    //free(cam);
+    free(cam);
 
     return 0;
 
