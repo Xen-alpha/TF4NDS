@@ -5,3 +5,5 @@ typedef struct LinkedList_Trie {
   struct LinkedList_Trie *children;
 } LinkedTrie;
 
+void insertGLID(LinkedTrie *node, char *keyword, int glID, int level); // level must be positive integer
+int findGLID(LinkedTrie *node, char *keyword, int level); // level must be positive integer

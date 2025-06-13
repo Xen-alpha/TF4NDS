@@ -27,6 +27,7 @@ miptex_t ** readTextureContents(const unsigned char * texture_data, int *section
   for (int i = 0 ; i < miptex_header->numtextures; i++) {
     result[i] = (miptex_t *)(&texture_data[miptex_header->dataofs[i]]);
   }
+  dmaCopy(result)
   return result;
 }
 
