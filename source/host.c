@@ -3,8 +3,6 @@
 #include <host.h>
 #include <camera.h>
 
-#include "BACKTILE.h"
-
 
 void loadCamera() {
   glMatrixMode(GL_PROJECTION);

@@ -4,9 +4,11 @@
 #include <math.h>
 #include <filesystem.h>
 #include <nds.h>
-#include "bsp.h"
-#include "polygon.h"
-#include "texture.h"
+#include <bsp.h>
+#include <polygon.h>
+#include <texture.h>
+
+extern u16 *paletteData[MAX_TEX_DATA];
 
 void* loadLump(FILE* file, lump_t lump, int elemSize, int* count) {
     void* buffer = malloc(lump.length);
@@ -27,7 +29,6 @@ miptex_t ** readTextureContents(const unsigned char * texture_data, int *section
   for (int i = 0 ; i < miptex_header->numtextures; i++) {
     result[i] = (miptex_t *)(&texture_data[miptex_header->dataofs[i]]);
   }
-  dmaCopy(result)
   return result;
 }
 
@@ -159,6 +160,13 @@ dvertex_t* bsp_GetVertexFromFace(const dmap_t *map, const dface_t* face, int loc
 void drawTexturedFace(const dmap_t *map, const dface_t* face) {
     texinfo_t* texinfo = &map->texinfos[face->texInfo];
     miptex_t* texture = map->textures[texinfo->miptex];
+    int textureID = getTextureId(texture->name);
+    if (textureID < 0) {
+        // printf("Texture not found: %s\n", texture->name);
+        return;
+    }
+    glBindTexture(0, textureID);
+    glColorTableEXT(0, 0, 256, 0, 0, paletteData[textureID]);
     lightmap_info_t lmInfo = calcLightmapInfo(map, face);
 
     glBegin(GL_TRIANGLE);

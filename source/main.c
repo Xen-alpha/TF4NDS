@@ -6,6 +6,7 @@
 #include <host.h>
 #include <bsp.h>
 #include <camera.h>
+#include <texture.h>
 
 dmap_t *map_game = NULL;
 
@@ -74,6 +75,11 @@ int main(int argc, char **argv)
         // set UI on the bottom screen
         loadUI();
         printf("Loaded BSP\nVertices: %d\nEdges: %d\nFaces: %d\n", map_game->numVertices, map_game->numEdges, map_game->numFaces);
+        //printf("texture 0-0: %s\n", map_game->textures[0][0].name);
+        //printf("texture 1-0: %s\n", map_game->textures[1][0].name);
+        printf("Texture ID for 'wmet2_4': %d\n", getTextureId("wmet2_4"));
+        printf("Texture ID for 'black': %d\n", getTextureId("black"));
+        printf("Texture ID for 'sfloor4_1': %d\n", getTextureId("sfloor4_1"));
         // Handle user input
 
         scanKeys();

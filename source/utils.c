@@ -1,10 +1,11 @@
 #include <utils.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // trie with linked list
 // assumed that inserted textures are ordered by alphabet sequences
-void insertGLID(LinkedTrie *node, char *keyword, int glID, int level) {
+void insertGLID(LinkedTrie *node, const char *keyword, int glID, int level) {
   if (keyword == NULL || level <= 0 ) return; // 예외 처리?
   if (node == NULL) { // 이건 바로 삽입
     LinkedTrie *newNode = (LinkedTrie *) malloc(sizeof(LinkedTrie));
@@ -52,7 +53,7 @@ void insertGLID(LinkedTrie *node, char *keyword, int glID, int level) {
   return;
 }
 
-int findGLID(LinkedTrie *node, char *keyword, int level) {
+int findGLID(LinkedTrie *node, const char *keyword, int level) {
   if (node == NULL || keyword == NULL || level <= 0) return -1;
   if (strlen(keyword) > 16 || level > 16) return -1; // 16 이상의 길이의 문자열은 삽입 불가
   LinkedTrie *cur = node;
