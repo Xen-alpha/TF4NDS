@@ -37,8 +37,7 @@ int main(int argc, char **argv)
 
     consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
 
-    // Load textures
-    printf("Load Texture Successfully\n");
+
 
     // Initialize NitroFS
     bool init_ok = nitroFSInit(NULL);
@@ -54,10 +53,15 @@ int main(int argc, char **argv)
     // Setup done
     printf("Device Initialized\n");
     // ==========
+
+    
+    // Load textures
+    initTexture();
+    printf("Load Texture Successfully\n");
     
     // Load BSP 
     map_game = (dmap_t *) malloc(sizeof(dmap_t));
-    if (!loadBSP(map_game, "introseq.bsp")) {
+    if (!loadBSP(map_game, "2fort5.bsp")) {
         printf("Failed to load BSP\n");
         while (1)
           swiWaitForVBlank();
@@ -77,6 +81,7 @@ int main(int argc, char **argv)
         printf("Loaded BSP\nVertices: %d\nEdges: %d\nFaces: %d\n", map_game->numVertices, map_game->numEdges, map_game->numFaces);
         //printf("texture 0-0: %s\n", map_game->textures[0][0].name);
         //printf("texture 1-0: %s\n", map_game->textures[1][0].name);
+        printf("Texture ID for 'adoor01_2': %d\n", getTextureId("adoor01_2"));
         printf("Texture ID for 'wmet2_4': %d\n", getTextureId("wmet2_4"));
         printf("Texture ID for 'black': %d\n", getTextureId("black"));
         printf("Texture ID for 'sfloor4_1': %d\n", getTextureId("sfloor4_1"));

@@ -5,4 +5,4 @@
 void initTexture();
 void loadTexture(int texId, const char* name, const u8* data, int texSizeX, int texSizeY, 
                  const u16* palette);
-int getTextureId(char * name);
+int getTextureId(const char * name);

@@ -509,9 +509,18 @@ u16* paletteData[MAX_TEX_DATA];
 void initTexture() {
     glGenTextures(MAX_TEX_DATA, textureIDs);
 
+    // trie 초기화
+
+    textureIDList = (LinkedTrie *) malloc(sizeof(LinkedTrie));
+    textureIDList->next = NULL;
+    textureIDList->index = ' ';
+    textureIDList->value = -1; // -1 indicates not found
+    textureIDList->children = NULL;
+
     loadTexture(0, "adoor01_2", adoor01_2Bitmap, 128, 192, adoor01_2Pal); 
     loadTexture(1, "adoor02_2", adoor02_2Bitmap, 128, 192, adoor02_2Pal); 
-    loadTexture(2, "adoor03_2", adoor03_2Bitmap, 128, 192, adoor03_2Pal); 
+    loadTexture(2, "adoor03_2", adoor03_2Bitmap, 128, 192, adoor03_2Pal);
+    loadTexture(35, "black", blackBitmap, 16, 16, blackPal);    /*
     loadTexture(3, "adoor03_3", adoor03_3Bitmap, 32, 32, adoor03_3Pal);
     loadTexture(4, "adoor03_4", adoor03_4Bitmap, 32, 32, adoor03_4Pal);
     loadTexture(5, "adoor03_5", adoor03_5Bitmap, 32, 32, adoor03_5Pal);
@@ -544,7 +553,7 @@ void initTexture() {
     loadTexture(32, "batt0top", batt0topBitmap, 32, 32, batt0topPal);
     loadTexture(33, "batt1sid", batt1sidBitmap, 32, 32, batt1sidPal);
     loadTexture(34, "batt1top", batt1topBitmap, 32, 32, batt1topPal);
-    loadTexture(35, "black", blackBitmap, 16, 16, blackPal);
+    
     loadTexture(36, "bodiesa2_1", bodiesa2_1Bitmap, 64, 128, bodiesa2_1Pal);
     loadTexture(37, "bodiesa2_4", bodiesa2_4Bitmap, 64, 128, bodiesa2_4Pal);
     loadTexture(38, "bodiesa3_1", bodiesa3_1Bitmap, 64, 128, bodiesa3_1Pal);
@@ -1006,6 +1015,7 @@ void initTexture() {
     loadTexture(494, "wwood1_5", wwood1_5Bitmap, 64, 64, wwood1_5Pal);
     loadTexture(495, "wwood1_7", wwood1_7Bitmap, 64, 64, wwood1_7Pal);
     loadTexture(496, "z_exit", z_exitBitmap, 32, 32, z_exitPal);
+    */
 }
 
 // TODO: read texture pallete from palette data
@@ -1019,11 +1029,11 @@ void loadTexture(int texId, const char* name, const u8* data, int texSizeX, int 
     
     glTexImage2D(0, 0, GL_RGB256, texSizeX, texSizeY, 0,
                  0, (u8*)data);
-    insertGLID(textureIDList, name, texId, 1);
+    insertGLID(textureIDList, name, texId);
 }
 
-int getTextureId(char * name) {
-  return findGLID(textureIDList, name, 1);
+int getTextureId(const char * name) {
+  return findGLID(textureIDList, name);
 }
 
 
