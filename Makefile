@@ -262,10 +262,11 @@ $(BUILDDIR)/%.bin.o $(BUILDDIR)/%_bin.h : %.bin
 	$(V)$(BLOCKSDS)/tools/bin2c/bin2c $< $(@D)
 	$(V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/$*.bin.o $(BUILDDIR)/$*_bin.c
 
-$(BUILDDIR)/%.png.o $(BUILDDIR)/%.h : %.png %.grit
+$(BUILDDIR)/%.png.o $(BUILDDIR)/%.png.bin $(BUILDDIR)/%.h : %.png %.grit
 	@echo "  GRIT    $<"
 	@$(MKDIR) -p $(@D)
 	$(V)$(BLOCKSDS)/tools/grit/grit $< -ftc -W1 -o$(BUILDDIR)/$*
+	$(V)$(BLOCKSDS)/tools/grit/grit $< -ftb -W1 -o$(BUILDDIR)/$*.png.bin
 	$(V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/$*.png.o $(BUILDDIR)/$*.c
 	$(V)touch $(BUILDDIR)/$*.png.o $(BUILDDIR)/$*.h
 

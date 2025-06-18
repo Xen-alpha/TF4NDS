@@ -3,16 +3,16 @@
 #include <nds.h>
 #include <fat.h>
 #include <filesystem.h>
-#include <host.h>
-#include <bsp.h>
-#include <camera.h>
-#include <texture.h>
+//#include <host.h>
+//#include <bsp.h>
+//#include <camera.h>
+//#include <texture.h>
 
-dmap_t *map_game = NULL;
+//dmap_t *map_game = NULL;
 
 int main(int argc, char **argv)
 {
-    Camera * cam = (Camera *) malloc(sizeof(Camera));
+    // Camera * cam = (Camera *) malloc(sizeof(Camera));
     // Enable 3D
     videoSetMode(MODE_0_3D);
     
@@ -21,8 +21,17 @@ int main(int argc, char **argv)
     setBrightness(2, 0);
 
     // set main 3d engine: 3D mode, 256x192, 16bpp, Total 512KB
-    init3D();
-    loadCamera();
+    //init3D();
+    //loadCamera();
+
+    // 3D Texture: total 512KB
+    vramSetBankA(VRAM_A_TEXTURE);
+    vramSetBankB(VRAM_B_TEXTURE);
+    vramSetBankC(VRAM_C_TEXTURE);
+    vramSetBankD(VRAM_D_TEXTURE);
+    // TODO: 이게 필요할지 안 필요할지 모르겠다. 텍스처가 16bit 그래픽이면 아래 뱅크는 다른 데로 돌리자.
+    vramSetBankF(VRAM_F_TEX_PALETTE); // 16KB, Texture palette slot 0
+    vramSetBankG(VRAM_G_TEX_PALETTE_SLOT1); // 16KB, Texture palette slot 1
 
     // set main 2d engine: BG2 only, 256x256, 8bpp, Total 64KB
     vramSetBankE(VRAM_E_MAIN_BG); // 상단 BG
@@ -37,8 +46,6 @@ int main(int argc, char **argv)
 
     consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
 
-
-
     // Initialize NitroFS
     bool init_ok = nitroFSInit(NULL);
     if (!init_ok)
@@ -48,25 +55,26 @@ int main(int argc, char **argv)
         while (1)
           swiWaitForVBlank();
     }
-    initCamera(cam);
-
+    
     // Setup done
     printf("Device Initialized\n");
     // ==========
 
     
     // Load textures
-    initTexture();
+    
     printf("Load Texture Successfully\n");
     
     // Load BSP 
+    /*
     map_game = (dmap_t *) malloc(sizeof(dmap_t));
-    if (!loadBSP(map_game, "2fort5.bsp")) {
+    
+    if (!loadBSP(map_game, "introseq.bsp")) {
         printf("Failed to load BSP\n");
         while (1)
           swiWaitForVBlank();
     }
-
+    */
     // ==========
     printf("Load BSP Successfully\n");
     // -----------------
@@ -77,15 +85,6 @@ int main(int argc, char **argv)
     while (1)
     {
         // set UI on the bottom screen
-        loadUI();
-        printf("Loaded BSP\nVertices: %d\nEdges: %d\nFaces: %d\n", map_game->numVertices, map_game->numEdges, map_game->numFaces);
-        //printf("texture 0-0: %s\n", map_game->textures[0][0].name);
-        //printf("texture 1-0: %s\n", map_game->textures[1][0].name);
-        printf("Texture ID for 'adoor01_2': %d\n", getTextureId("adoor01_2"));
-        printf("Texture ID for 'wmet2_4': %d\n", getTextureId("wmet2_4"));
-        printf("Texture ID for 'black': %d\n", getTextureId("black"));
-        printf("Texture ID for 'sfloor4_1': %d\n", getTextureId("sfloor4_1"));
-        // Handle user input
 
         scanKeys();
 
@@ -104,10 +103,6 @@ int main(int argc, char **argv)
         if (keys & KEY_START)
             break;
         // Update camera
-        cameraUpdateView(cam); 
-        // Draw the BSP map
-        renderVisibleFaces(map_game, cam->x, cam->y, cam->z);
-        glFlush(0);
 
         // Synchronize game loop to the screen refresh
         swiWaitForVBlank();
@@ -115,8 +110,8 @@ int main(int argc, char **argv)
     // Exit the 3D engine
     
 
-    freeBSP(map_game);
-    free(map_game);
+    //freeBSP(map_game);
+    //free(map_game);
     free(cam);
 
     return 0;
