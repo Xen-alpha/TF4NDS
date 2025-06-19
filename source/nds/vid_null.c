@@ -46,6 +46,14 @@ void	VID_Update (vrect_t *rects)
 {
 }
 
+void VID_LockBuffer (void)
+{
+}
+
+void VID_UnlockBuffer (void)
+{
+}
+
 /*
 ================
 D_BeginDirectRect

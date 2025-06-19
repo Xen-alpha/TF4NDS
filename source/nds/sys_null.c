@@ -2,7 +2,7 @@
 
 #include "quakedef.h"
 #include "errno.h"
-
+#include <nds.h>
 
 /*
 ================
@@ -86,7 +86,7 @@ void Sys_Quit (void)
 	exit (0);
 }
 
-double Sys_FloatTime (void)
+double Sys_DoubleTime (void)
 {
 	static double t;
 	
@@ -135,7 +135,9 @@ void quake_main (int argc, char **argv)
 	Host_Init (&parms);
 	while (1)
 	{
+    printf ("Host_Frame\n");
 		Host_Frame (0.1);
+    swiWaitForVBlank();
 	}
 }
 

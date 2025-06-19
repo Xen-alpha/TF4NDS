@@ -3,12 +3,8 @@
 #include <nds.h>
 #include <fat.h>
 #include <filesystem.h>
-//#include <host.h>
-//#include <bsp.h>
-//#include <camera.h>
-//#include <texture.h>
 
-//dmap_t *map_game = NULL;
+void quake_main (int argc, char **argv);
 
 int main(int argc, char **argv)
 {
@@ -60,59 +56,8 @@ int main(int argc, char **argv)
     printf("Device Initialized\n");
     // ==========
 
-    
-    // Load textures
-    
-    printf("Load Texture Successfully\n");
-    
-    // Load BSP 
-    /*
-    map_game = (dmap_t *) malloc(sizeof(dmap_t));
-    
-    if (!loadBSP(map_game, "introseq.bsp")) {
-        printf("Failed to load BSP\n");
-        while (1)
-          swiWaitForVBlank();
-    }
-    */
-    // ==========
-    printf("Load BSP Successfully\n");
-    // -----------------
-
-    int angle_x = 0;
-    int angle_z = 0;
-
-    while (1)
-    {
-        // set UI on the bottom screen
-
-        scanKeys();
-
-        uint16_t keys = keysHeld();
-
-        if (keys & KEY_LEFT)
-            angle_z += 3;
-        if (keys & KEY_RIGHT)
-            angle_z -= 3;
-
-        if (keys & KEY_UP)
-            angle_x += 3;
-        if (keys & KEY_DOWN)
-            angle_x -= 3;
-
-        if (keys & KEY_START)
-            break;
-        // Update camera
-
-        // Synchronize game loop to the screen refresh
-        swiWaitForVBlank();
-    }
-    // Exit the 3D engine
-    
-
-    //freeBSP(map_game);
-    //free(map_game);
-    //free(cam);
+    // Main game loop
+    quake_main(argc, argv);
 
     return 0;
 

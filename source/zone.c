@@ -924,8 +924,9 @@ void Memory_Init (void *buf, int size)
 	hunk_size = size;
 	hunk_low_used = 0;
 	hunk_high_used = 0;
-	
+	printf("Initializing Cache...\n");
 	Cache_Init ();
+  printf("Cache system initialized. Checking zone system...\n");
 	p = COM_CheckParm ("-zone");
 	if (p)
 	{
@@ -934,6 +935,7 @@ void Memory_Init (void *buf, int size)
 		else
 			Sys_Error ("Memory_Init: you must specify a size in KB after -zone");
 	}
+  printf("Zone size set to %i KB.\n", zonesize / 1024);
 	mainzone = Hunk_AllocName ( zonesize, "zone" );
 	Z_ClearZone (mainzone, zonesize);
 }

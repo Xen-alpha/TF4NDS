@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl_main.c  -- client main loop
 
 #include "quakedef.h"
+#include <stdio.h>
 #if 0
 //#include "winquake.h"
 //#include <netinet/in.h>
@@ -1424,10 +1425,10 @@ void Host_Init (quakeparms_t *parms)
 {
 	COM_InitArgv (parms->argc, parms->argv);
 	COM_AddParm ("-game");
-	COM_AddParm ("qw");
+	COM_AddParm ("tf");
 
-	Sys_mkdir("qw");
-
+	Sys_mkdir("tf");
+  printf("Setting miniumum memory to 2MB...\n");
 	if (COM_CheckParm ("-minmemory"))
 		parms->memsize = MINIMUM_MEMORY;
 
@@ -1436,36 +1437,42 @@ void Host_Init (quakeparms_t *parms)
 	if (parms->memsize < MINIMUM_MEMORY)
 		Sys_Error ("Only %4.1f megs of memory reported, can't execute game", parms->memsize / (float)0x100000);
 
+  printf("Ininitializing memory for QuakeWorld Client...\n");
 	Memory_Init (parms->membase, parms->memsize);
 	Cbuf_Init ();
+  printf("Memory initialized. Initializing Commands...\n");
 	Cmd_Init ();
 	V_Init ();
-
+  printf("Console command initialized. Initiating Device System...\n");
 	COM_Init ();
-
 	Host_FixupModelNames();
-	
+	printf("Device System initialized. Initiating Network communication...\n");
 	NET_Init (PORT_CLIENT);
 	Netchan_Init ();
-
+  printf("Network communication initialized. Load UI textures...\n");
 	W_LoadWadFile ("gfx.wad");
+  printf("UI initialized. Initiating Key System...\n");
 	Key_Init ();
+  printf("Key System initialized. Initiating Console...\n");
 	Con_Init ();	
+  printf("Key System initialized. Initiating Main menu...\n");
 	M_Init ();	
+  printf("Main menu initialized. Listing Mod...\n");
 	Mod_Init ();
 	
 //	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 	Con_Printf ("%4.1f megs RAM used.\n",parms->memsize/ (1024*1024.0));
 	
 	R_InitTextures ();
- 
+  printf("Textures initialized. Loading base palette and colormap...\n");
 	host_basepal = (byte *)COM_LoadHunkFile ("gfx/palette.lmp");
 	if (!host_basepal)
 		Sys_Error ("Couldn't load gfx/palette.lmp");
 	host_colormap = (byte *)COM_LoadHunkFile ("gfx/colormap.lmp");
 	if (!host_colormap)
 		Sys_Error ("Couldn't load gfx/colormap.lmp");
-#ifdef __linux__
+  printf("Base palette and colormap loaded.\n");
+#ifdef __linux__ // TODO: what sequence is best for NDS?
 	IN_Init ();
 	CDAudio_Init ();
 	VID_Init (host_basepal);
@@ -1494,6 +1501,7 @@ void Host_Init (quakeparms_t *parms)
 	CL_Init ();
 	IN_Init ();
 #endif
+  printf("Almost done. executing QuakeWorld...\n");
 
 	Cbuf_InsertText ("exec quake.rc\n");
 	Cbuf_AddText ("echo Type connect <internet address> or use GameSpy to connect to a game.\n");
