@@ -549,7 +549,7 @@ void CL_ParseServerData (void)
 	// game directory
 	str = MSG_ReadString ();
 
-	if (stricmp(gamedirfile, str)) {
+	if (strcmp(gamedirfile, str)) {
 		// save current config
 		Host_WriteConfiguration (); 
 		cflag = true;
@@ -885,7 +885,7 @@ void CL_NewTranslation (int slot)
 
 	strcpy(s, Info_ValueForKey(player->userinfo, "skin"));
 	COM_StripExtension(s, s);
-	if (player->skin && !stricmp(s, player->skin->name))
+	if (player->skin && !strcmp(s, player->skin->name))
 		player->skin = NULL;
 
 	if (player->_topcolor != player->topcolor ||

@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 
     //freeBSP(map_game);
     //free(map_game);
-    free(cam);
+    //free(cam);
 
     return 0;
 

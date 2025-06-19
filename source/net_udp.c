@@ -26,10 +26,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/param.h>
+#if 0
 #include <sys/ioctl.h>
 #include <sys/uio.h>
+#endif
 #include <arpa/inet.h>
 #include <errno.h>
+#include <dswifi9.h>
 
 #if defined(sun)
 #include <unistd.h>
@@ -53,7 +56,7 @@ int			net_send_socket;	// blocking, for sends
 #define	MAX_UDP_PACKET	8192
 byte		net_message_buffer[MAX_UDP_PACKET];
 
-int gethostname (char *, int);
+// int gethostname (char *, int);
 int close (int);
 
 //=============================================================================
@@ -239,7 +242,7 @@ int UDP_OpenSocket (int port)
 	qboolean _true = true;
 	int i;
 
-	if ((newsocket = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+	if ((newsocket = socket (PF_INET, SOCK_DGRAM, 0)) == -1) // DSWIFI SET 3rd parameter to 0
 		Sys_Error ("UDP_OpenSocket: socket:", strerror(errno));
 	if (ioctl (newsocket, FIONBIO, (char *)&_true) == -1)
 		Sys_Error ("UDP_OpenSocket: ioctl FIONBIO:", strerror(errno));
@@ -260,6 +263,8 @@ int UDP_OpenSocket (int port)
 
 	return newsocket;
 }
+
+#define MAXHOSTNAMELEN DSWIFI_BEACON_NAME_SIZE
 
 void NET_GetLocalAddress (void)
 {

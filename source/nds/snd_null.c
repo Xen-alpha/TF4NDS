@@ -1,6 +1,6 @@
 #include "quakedef.h"
 
-int SNDDMA_Init(void) {
+qboolean SNDDMA_Init(void) {
 	// This function initializes the sound device.
 	// Since this is a null implementation, we simply return 0 to indicate success.
 	return 0;

@@ -87,11 +87,9 @@ void Netchan_Init (void)
 	int		port;
 
 	// pick a port value that should be nice and random
-#ifdef _WIN32
-	port = ((int)(timeGetTime()*1000) * time(NULL)) & 0xffff;
-#else
-	port = ((int)(getpid()+getuid()*1000) * time(NULL)) & 0xffff;
-#endif
+  // In NDS, we use the current time to generate a pseudo-random port.
+  // This is not a perfect solution, but it should suffice for most cases.
+  port = (int)(realtime * 1000) & 0x7fff;	// 15 bits of randomness
 
 	Cvar_RegisterVariable (&showpackets);
 	Cvar_RegisterVariable (&showdrop);

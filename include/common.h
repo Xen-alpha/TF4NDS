@@ -143,17 +143,9 @@ void MSG_ReadDeltaUsercmd (struct usercmd_s *from, struct usercmd_s *cmd);
 #define Q_strcmp(s1, s2) strcmp((s1), (s2))
 #define Q_strncmp(s1, s2, n) strncmp((s1), (s2), (n))
 
-#ifdef _WIN32
-
-#define Q_strcasecmp(s1, s2) _stricmp((s1), (s2))
-#define Q_strncasecmp(s1, s2, n) _strnicmp((s1), (s2), (n))
-
-#else
-
 #define Q_strcasecmp(s1, s2) strcasecmp((s1), (s2))
 #define Q_strncasecmp(s1, s2, n) strncasecmp((s1), (s2), (n))
 
-#endif
 
 int	Q_atoi (char *str);
 float Q_atof (char *str);

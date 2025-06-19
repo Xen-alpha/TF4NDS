@@ -75,7 +75,7 @@ float		xscaleinv, yscaleinv;
 float		xscaleshrink, yscaleshrink;
 float		aliasxscale, aliasyscale, aliasxcenter, aliasycenter;
 
-int		screenwidth;
+// int		screenwidth; // d_edge.c에 정의됨
 
 float	pixelAspect;
 float	screenAspect;

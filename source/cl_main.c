@@ -20,9 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl_main.c  -- client main loop
 
 #include "quakedef.h"
+#if 0
 //#include "winquake.h"
-// #include <netinet/in.h>
-
+//#include <netinet/in.h>
+#endif
+#include <sys/socket.h>
 
 
 // we need to declare some mouse variables here, because the menu system
@@ -618,7 +620,7 @@ void CL_FullInfo_f (void)
 		if (*s)
 			s++;
 
-		if (!stricmp(key, pmodel_name) || !stricmp(key, emodel_name))
+		if (!strcmp(key, pmodel_name) || !strcmp(key, emodel_name))
 			continue;
 
 		Info_SetValueForKey (cls.userinfo, key, value, MAX_INFO_STRING);
@@ -644,7 +646,7 @@ void CL_SetInfo_f (void)
 		Con_Printf ("usage: setinfo [ <key> <value> ]\n");
 		return;
 	}
-	if (!stricmp(Cmd_Argv(1), pmodel_name) || !strcmp(Cmd_Argv(1), emodel_name))
+	if (!strcmp(Cmd_Argv(1), pmodel_name) || !strcmp(Cmd_Argv(1), emodel_name))
 		return;
 
 	Info_SetValueForKey (cls.userinfo, Cmd_Argv(1), Cmd_Argv(2), MAX_INFO_STRING);
@@ -782,6 +784,21 @@ void CL_Reconnect_f (void)
 	CL_BeginServerConnect();
 }
 
+int isspace(char c)
+{
+  return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
+}
+
+#define IPADDR_LOOPBACK 0x7f000001 //
+/*
+unsigned long htonl(unsigned long x)
+{
+  return ((x & 0xff000000) >> 24) |
+       ((x & 0x00ff0000) >> 8) |
+       ((x & 0x0000ff00) << 8) |
+       ((x & 0x000000ff) << 24);
+}
+*/
 /*
 =================
 CL_ConnectionlessPacket
@@ -826,7 +843,7 @@ void CL_ConnectionlessPacket (void)
 		Con_Printf ("client command\n");
 
 		if ((*(unsigned *)net_from.ip != *(unsigned *)net_local_adr.ip
-			&& *(unsigned *)net_from.ip != htonl(INADDR_LOOPBACK)) )
+			&& *(unsigned *)net_from.ip != htonl(IPADDR_LOOPBACK)) )
 		{
 			Con_Printf ("Command packet from remote host.  Ignored.\n");
 			return;
@@ -1489,7 +1506,7 @@ void Host_Init (quakeparms_t *parms)
 
 	Con_Printf ("\nClient Version %4.2f (Build %04d)\n\n", VERSION, build_number());
 
-	Con_Printf ("€ QuakeWorld Initialized ?n");	
+	Con_Printf ("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ QuakeWorld Initialized ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½?n");	
 }
 
 

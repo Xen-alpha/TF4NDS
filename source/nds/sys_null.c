@@ -118,7 +118,7 @@ void Sys_LowFPPrecision (void)
 
 //=============================================================================
 
-void main (int argc, char **argv)
+void quake_main (int argc, char **argv)
 {
 	quakeparms_t	parms;
 

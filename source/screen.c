@@ -102,7 +102,7 @@ int			scr_fullupdate;
 int			clearconsole;
 int			clearnotify;
 
-int			sb_lines;
+extern int			sb_lines; // sbar.c에 정의됨
 
 viddef_t	vid;				// global video state
 
@@ -458,7 +458,7 @@ void SCR_DrawFPS (void)
 	static double lastframetime;
 	double t;
 	extern int fps_count;
-	static lastfps;
+	static int lastfps;
 	int x, y;
 	char st[80];
 
