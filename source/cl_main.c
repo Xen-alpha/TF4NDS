@@ -1425,13 +1425,13 @@ void Host_Init (quakeparms_t *parms)
 {
 	COM_InitArgv (parms->argc, parms->argv);
 	COM_AddParm ("-game");
-	COM_AddParm ("qw");
+	COM_AddParm ("fortress");
 
-	Sys_mkdir("qw");
+	Sys_mkdir("fortress");
 
 	host_parms = *parms;
 
-  printf("Ininitializing memory for QuakeWorld Client...\n");
+  printf("Ininitializing memory for client...\n");
   printf("Memory base: %p, Memory size: %d\n", parms->membase, parms->memsize);
 	Memory_Init (parms->membase, parms->memsize);
 	Cbuf_Init ();
@@ -1496,10 +1496,10 @@ void Host_Init (quakeparms_t *parms)
 	CL_Init ();
 	IN_Init ();
 #endif
-  printf("Almost done. executing QuakeWorld...\n");
+  printf("Almost done. executing QuakeWorld engine...\n");
 
 	Cbuf_InsertText ("exec quake.rc\n");
-	Cbuf_AddText ("echo Type connect <internet address> or use GameSpy to connect to a game.\n");
+	Cbuf_AddText ("echo Type connect <internet address> inside config.cfg to connect to a game.\n");
 	Cbuf_AddText ("cl_warncmd 1\n");
 
 	Hunk_AllocName (0, "-HOST_HUNKLEVEL-");
@@ -1509,7 +1509,7 @@ void Host_Init (quakeparms_t *parms)
 
 	Con_Printf ("\nClient Version %4.2f (Build %04d)\n\n", VERSION, build_number());
 
-	Con_Printf ("������� QuakeWorld Initialized ������?n");	
+	Con_Printf ("QuakeWorld engine Initialized");	
 }
 
 

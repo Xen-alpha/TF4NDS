@@ -3,8 +3,10 @@
 #include <nds.h>
 #include <fat.h>
 #include <filesystem.h>
+#include <dswifi9.h>
 
 void quake_main (int argc, char **argv);
+void getWifiConnection(void);
 
 int main(int argc, char **argv)
 {
@@ -15,10 +17,6 @@ int main(int argc, char **argv)
     // Setup some VRAM as memory for main engine background, main engine
     // sprites, and 3D textures.
     setBrightness(2, 0);
-
-    // set main 3d engine: 3D mode, 256x192, 16bpp, Total 512KB
-    //init3D();
-    //loadCamera();
 
     // 3D Texture: total 512KB
     vramSetBankA(VRAM_A_TEXTURE);
@@ -34,6 +32,7 @@ int main(int argc, char **argv)
     vramSetBankH(VRAM_H_SUB_BG);      // 하단 BG
     vramSetBankI(VRAM_I_LCD);     // 버퍼 용도로 바꿔 CPU 및 디스플레이 엔진의 렌더링 접근을 막는다.
 
+    Wifi_InitDefault(INIT_ONLY);
     
     // Bank H에 할당된 VRAM을 하단 스크린에 할당
     videoSetModeSub(MODE_0_2D);
@@ -61,4 +60,38 @@ int main(int argc, char **argv)
 
     return 0;
 
+}
+
+void getWifiConnection() {
+  // Set the library in scan mode
+  Wifi_ScanMode();
+  
+  while (1)
+  {
+      swiWaitForVBlank();
+  
+      // Get find out how many APs there are in the area
+      int count = Wifi_GetNumAP();
+  
+      printf("Number of AP: %d\n", count);
+      printf("\n");
+  
+      for (int i = 0; i < count; i++)
+      {
+          Wifi_AccessPoint ap;
+          Wifi_GetAPData(i, &ap);
+  
+          const char *security = "Open";
+          if (ap.flags & WFLAG_APDATA_WPA)
+              security = "WPA ";
+          else if (ap.flags & WFLAG_APDATA_WEP)
+              security = "WEP ";
+  
+          // WPA isn't supported in NDSL! Only DSi supports WPA.
+  
+          printf("[%.24s]\n", ap.ssid);
+          printf("%s | Channel %2d | RSSI %u\n", security, ap.channel, ap.rssi);
+          printf("\n");
+      }
+  }
 }

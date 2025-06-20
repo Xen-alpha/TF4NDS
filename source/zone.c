@@ -408,9 +408,8 @@ void *Hunk_AllocName (int size, char *name)
 		Sys_Error ("Hunk_Alloc: bad size: %i", size);
 		
 	size = sizeof(hunk_t) + ((size+15)&~15);
-	printf ("Hunk_AllocName: %i bytes for %s\n", size, name);
 	if (hunk_size - hunk_low_used - hunk_high_used < size)
-	  	Sys_Error ("Not enough RAM allocated.  Try starting using \"-mem 16\" on the QuakeWorld command line.");
+	  	Sys_Error ("Not enough RAM allocated.  Try starting using \"-mem 16\" on the command line.");
 	
 	h = (hunk_t *)(hunk_base + hunk_low_used);
 
@@ -423,7 +422,6 @@ void *Hunk_AllocName (int size, char *name)
 	h->size = size;
 	h->sentinal = HUNK_SENTINAL;
 	Q_strncpy (h->name, name, 8);
-	printf("Hunk_AllocName: Q_strncpy done\n");
 	return (void *)(h+1);
 }
 

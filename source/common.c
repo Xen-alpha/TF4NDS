@@ -35,7 +35,7 @@ static char	*argvdummy = " ";
 static char	*safeargvs[NUM_SAFE_ARGVS] =
 	{"-stdvid", "-nolan", "-nosound", "-nocdaudio", "-nojoy", "-nomouse"};
 
-cvar_t	registered = {"registered","0"};
+cvar_t	registered = {"registered","1"};
 
 qboolean	com_modified;	// set true if using non-id files
 
@@ -1222,7 +1222,8 @@ void COM_Init (void)
 	Cmd_AddCommand ("path", COM_Path_f);
 
 	COM_InitFilesystem ();
-	COM_CheckRegistered ();
+  // TODO: Check if this is needed
+	// COM_CheckRegistered ();
 }
 
 
@@ -1789,7 +1790,7 @@ void COM_Gamedir (char *dir)
 	//
 	Cache_Flush ();
 
-	if (!strcmp(dir,"id1") || !strcmp(dir, "qw"))
+	if (!strcmp(dir,"lq1") || !strcmp(dir, "fortress"))
 		return;
 
 	sprintf (com_gamedir, "%s/%s", com_basedir, dir);
@@ -1840,8 +1841,8 @@ void COM_InitFilesystem (void)
 //
 // start up with id1 by default
 //
-	COM_AddGameDirectory (va("%s/id1", com_basedir) );
-	COM_AddGameDirectory (va("%s/qw", com_basedir) );
+	COM_AddGameDirectory (va("%s/lq1", com_basedir) );
+	COM_AddGameDirectory (va("%s/fortress", com_basedir) );
 
 	// any set gamedirs will be freed up to here
 	com_base_searchpaths = com_searchpaths;

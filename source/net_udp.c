@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include <arpa/inet.h>
 #include <errno.h>
+#include <nds.h>
 #include <dswifi9.h>
 
 #if defined(sun)

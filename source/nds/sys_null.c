@@ -146,9 +146,9 @@ void quake_main (int argc, char **argv)
 
 	printf ("Host_Init\n");
 	Host_Init (&parms);
+  printf ("Entering Host_Frame...\n");
 	while (1)
 	{
-    printf ("Host_Frame\n");
 		Host_Frame (0.1);
     swiWaitForVBlank();
 	}
