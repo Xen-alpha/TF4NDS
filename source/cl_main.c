@@ -1425,19 +1425,14 @@ void Host_Init (quakeparms_t *parms)
 {
 	COM_InitArgv (parms->argc, parms->argv);
 	COM_AddParm ("-game");
-	COM_AddParm ("tf");
+	COM_AddParm ("qw");
 
-	Sys_mkdir("tf");
-  printf("Setting miniumum memory to 2MB...\n");
-	if (COM_CheckParm ("-minmemory"))
-		parms->memsize = MINIMUM_MEMORY;
+	Sys_mkdir("qw");
 
 	host_parms = *parms;
 
-	if (parms->memsize < MINIMUM_MEMORY)
-		Sys_Error ("Only %4.1f megs of memory reported, can't execute game", parms->memsize / (float)0x100000);
-
   printf("Ininitializing memory for QuakeWorld Client...\n");
+  printf("Memory base: %p, Memory size: %d\n", parms->membase, parms->memsize);
 	Memory_Init (parms->membase, parms->memsize);
 	Cbuf_Init ();
   printf("Memory initialized. Initializing Commands...\n");

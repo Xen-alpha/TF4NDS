@@ -509,7 +509,7 @@ void Cmd_TokenizeString (char *text)
 Cmd_AddCommand
 ============
 */
-void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
+void Cmd_AddCommand (char *cmd_name, xcommand_t function)
 {
 	cmd_function_t	*cmd;
 	
@@ -532,7 +532,7 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function)
 			return;
 		}
 	}
-
+  
 	cmd = Hunk_Alloc (sizeof(cmd_function_t));
 	cmd->name = cmd_name;
 	cmd->function = function;

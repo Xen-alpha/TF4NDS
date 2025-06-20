@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define UNUSED(x)	(x = x)	// for pesky compiler / lint warnings
 
-#define	MINIMUM_MEMORY	0x200000
+#define	MINIMUM_MEMORY	0x400000 // Actually, 4MB maximum memory for game
 
 // up / down
 #define	PITCH	0

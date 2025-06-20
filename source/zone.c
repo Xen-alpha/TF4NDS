@@ -408,26 +408,22 @@ void *Hunk_AllocName (int size, char *name)
 		Sys_Error ("Hunk_Alloc: bad size: %i", size);
 		
 	size = sizeof(hunk_t) + ((size+15)&~15);
-	
+	printf ("Hunk_AllocName: %i bytes for %s\n", size, name);
 	if (hunk_size - hunk_low_used - hunk_high_used < size)
-//		Sys_Error ("Hunk_Alloc: failed on %i bytes",size);
-#ifdef _WIN32
-	  	Sys_Error ("Not enough RAM allocated.  Try starting using \"-heapsize 16000\" on the QuakeWorld command line.");
-#else
 	  	Sys_Error ("Not enough RAM allocated.  Try starting using \"-mem 16\" on the QuakeWorld command line.");
-#endif
 	
 	h = (hunk_t *)(hunk_base + hunk_low_used);
+
 	hunk_low_used += size;
 
 	Cache_FreeLow (hunk_low_used);
 
 	memset (h, 0, size);
-	
+
 	h->size = size;
 	h->sentinal = HUNK_SENTINAL;
 	Q_strncpy (h->name, name, 8);
-	
+	printf("Hunk_AllocName: Q_strncpy done\n");
 	return (void *)(h+1);
 }
 
@@ -815,7 +811,7 @@ void Cache_Init (void)
 {
 	cache_head.next = cache_head.prev = &cache_head;
 	cache_head.lru_next = cache_head.lru_prev = &cache_head;
-
+  printf("Adding cache flush command...\n");
 	Cmd_AddCommand ("flush", Cache_Flush);
 }
 
@@ -922,11 +918,12 @@ void Memory_Init (void *buf, int size)
 
 	hunk_base = buf;
 	hunk_size = size;
-	hunk_low_used = 0;
-	hunk_high_used = 0;
-	printf("Initializing Cache...\n");
+  // Note: NDS's ARM9 does not use paging so hunk_low_used and hunk_high_used must not be initialized to 0.
+  // so we initialize them to 0x02000000 here.
+	hunk_low_used = 0x0;
+	hunk_high_used = 0x0;
+
 	Cache_Init ();
-  printf("Cache system initialized. Checking zone system...\n");
 	p = COM_CheckParm ("-zone");
 	if (p)
 	{
@@ -935,7 +932,6 @@ void Memory_Init (void *buf, int size)
 		else
 			Sys_Error ("Memory_Init: you must specify a size in KB after -zone");
 	}
-  printf("Zone size set to %i KB.\n", zonesize / 1024);
 	mainzone = Hunk_AllocName ( zonesize, "zone" );
 	Z_ClearZone (mainzone, zonesize);
 }

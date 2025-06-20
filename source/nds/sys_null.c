@@ -1,8 +1,8 @@
 // sys_null.h -- null system driver to aid porting efforts
 
+#include <nds.h>
 #include "quakedef.h"
 #include "errno.h"
-#include <nds.h>
 
 /*
 ================
@@ -68,6 +68,8 @@ void Sys_Error (char *error, ...)
 	vprintf (error,argptr);
 	va_end (argptr);
 	printf ("\n");
+  while (1)
+    swiWaitForVBlank(); // Wait for VBlank to avoid freezing the system
 
 	exit (1);
 }
@@ -122,9 +124,20 @@ void quake_main (int argc, char **argv)
 {
 	quakeparms_t	parms;
 
-	parms.memsize = 5861376;
-	parms.membase = malloc (parms.memsize);
-	parms.basedir = ".";
+  int remaining_memory = MINIMUM_MEMORY; // 4MB
+
+  // we don't know how much memory is available, so we just allocate
+  // until we run out of memory or reach the minimum required size.
+  parms.membase = (char *) malloc (remaining_memory);
+  while (!parms.membase || !remaining_memory) {
+    remaining_memory -= 1024;
+    parms.membase = (char *) malloc (remaining_memory);
+  }
+
+	parms.memsize = remaining_memory;
+	
+  printf("Setting memory base to %p, size: %d\n", parms.membase, parms.memsize);
+	parms.basedir = "nitro:";
 
 	COM_InitArgv (argc, argv);
 
