@@ -54,6 +54,7 @@ int main(int argc, char **argv)
     // Setup done
     printf("Device Initialized\n");
     // ==========
+    getWifiConnection();
 
     // Main game loop
     quake_main(argc, argv);
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
 void getWifiConnection() {
   // Set the library in scan mode
   Wifi_ScanMode();
-  
+  printf("Scanning for WiFi networks...\n");
   while (1)
   {
       swiWaitForVBlank();
@@ -73,12 +74,10 @@ void getWifiConnection() {
       // Get find out how many APs there are in the area
       int count = Wifi_GetNumAP();
   
-      printf("Number of AP: %d\n", count);
-      printf("\n");
-  
+      Wifi_AccessPoint ap;
       for (int i = 0; i < count; i++)
       {
-          Wifi_AccessPoint ap;
+          
           Wifi_GetAPData(i, &ap);
   
           const char *security = "Open";
@@ -91,7 +90,37 @@ void getWifiConnection() {
   
           printf("[%.24s]\n", ap.ssid);
           printf("%s | Channel %2d | RSSI %u\n", security, ap.channel, ap.rssi);
+          printf("ssid_len: %d\n", ap.ssid_len);
+          printf("has spinlock: %ld\n", ap.spinlock);
           printf("\n");
+      }
+      if (count == 1)
+      {
+          Wifi_GetAPData(0, &ap);
+          if (strncmp(ap.ssid, "melonAP", 7) == 0) // connect to 'melonAP' when using melonDS
+          {
+              // If there is only one AP, connect to it
+              printf("Connecting to %s...\n", ap.ssid);
+              Wifi_ConnectAP(&ap, WEPMODE_NONE, 0, 0);
+              break;
+          }
+      }
+      else if (count > 1) // 일단 첫번째 것에만 비번 없이 연결 시도하도록 한다.
+      {
+          printf("Multiple APs found. Please select one to connect.\n");
+          // Here you could implement a selection mechanism
+          // For now, we will just wait for user input
+          printf("Press A to connect to the first AP.\n");
+          while (1)
+          {
+              scanKeys();
+              if (keysDown() & KEY_A)
+              {
+                  Wifi_GetAPData(0, &ap);
+                  Wifi_ConnectAP(&ap, WEPMODE_NONE, 0, 0);
+                  break;
+              }
+          }
       }
   }
 }

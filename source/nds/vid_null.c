@@ -5,8 +5,8 @@
 
 extern viddef_t	vid;				// global video state
 
-#define	BASEWIDTH	320
-#define	BASEHEIGHT	200
+#define	BASEWIDTH	256
+#define	BASEHEIGHT	192
 
 byte	vid_buffer[BASEWIDTH*BASEHEIGHT];
 short	zbuffer[BASEWIDTH*BASEHEIGHT];
