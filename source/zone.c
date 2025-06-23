@@ -809,7 +809,7 @@ void Cache_Init (void)
 {
 	cache_head.next = cache_head.prev = &cache_head;
 	cache_head.lru_next = cache_head.lru_prev = &cache_head;
-  printf("Adding cache flush command...\n");
+  //printf("Adding cache flush command...\n");
 	Cmd_AddCommand ("flush", Cache_Flush);
 }
 

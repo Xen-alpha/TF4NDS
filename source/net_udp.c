@@ -223,13 +223,17 @@ void NET_SendPacket (int length, void *data, netadr_t to)
 	struct sockaddr_in	addr;
 
 	NetadrToSockadr (&to, &addr);
-
+  printf("NET_SendPacket: %s\n", NET_AdrToString(to));
 	ret = sendto (net_socket, data, length, 0, (struct sockaddr *)&addr, sizeof(addr) );
 	if (ret == -1) {
-		if (errno == EWOULDBLOCK)
-			return;
-		if (errno == ECONNREFUSED)
-			return;
+		if (errno == EWOULDBLOCK){
+      Sys_Printf ("NET_SendPacket: EWOULDBLOCK\n");
+      return;
+    }
+		if (errno == ECONNREFUSED){
+      Sys_Printf ("NET_SendPacket: ECONNREFUSED\n");
+      return;
+    }
 		Sys_Printf ("NET_SendPacket: %s\n", strerror(errno));
 	}
 }

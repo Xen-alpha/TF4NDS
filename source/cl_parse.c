@@ -155,6 +155,8 @@ to start a download from the server.
 */
 qboolean	CL_CheckOrDownloadFile (char *filename)
 {
+  return true; // always return true, no downloads in this version
+  /*
 	FILE	*f;
 
 	if (strstr (filename, ".."))
@@ -194,6 +196,7 @@ qboolean	CL_CheckOrDownloadFile (char *filename)
 	cls.downloadnumber++;
 
 	return false;
+  */
 }
 
 /*

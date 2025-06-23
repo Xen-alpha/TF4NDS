@@ -4,6 +4,8 @@
 #include <fat.h>
 #include <filesystem.h>
 #include <dswifi9.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 void quake_main (int argc, char **argv);
 void getWifiConnection(void);
@@ -12,23 +14,25 @@ int main(int argc, char **argv)
 {
     // Camera * cam = (Camera *) malloc(sizeof(Camera));
     // Enable 3D
-    videoSetMode(MODE_0_3D);
+    videoSetMode(MODE_FB3);
     
     // Setup some VRAM as memory for main engine background, main engine
     // sprites, and 3D textures.
     setBrightness(2, 0);
 
-    // 3D Texture: total 512KB
+    // 3D Texture: total 256KB
     vramSetBankA(VRAM_A_TEXTURE);
     vramSetBankB(VRAM_B_TEXTURE);
-    vramSetBankC(VRAM_C_TEXTURE);
-    vramSetBankD(VRAM_D_TEXTURE);
+    // MODE_FB3 Test: 128KB
+    vramSetBankC(VRAM_C_LCD);
+    // MODE_FB3 Test: 128KB
+    vramSetBankD(VRAM_D_LCD);
     // TODO: 이게 필요할지 안 필요할지 모르겠다. 텍스처가 16bit 그래픽이면 아래 뱅크는 다른 데로 돌리자.
     vramSetBankF(VRAM_F_TEX_PALETTE); // 16KB, Texture palette slot 0
     vramSetBankG(VRAM_G_TEX_PALETTE_SLOT1); // 16KB, Texture palette slot 1
 
     // set main 2d engine: BG2 only, 256x256, 8bpp, Total 64KB
-    vramSetBankE(VRAM_E_MAIN_BG); // 상단 BG
+    //vramSetBankE(VRAM_E_MAIN_BG); // 상단 BG
     vramSetBankH(VRAM_H_SUB_BG);      // 하단 BG
     vramSetBankI(VRAM_I_LCD);     // 버퍼 용도로 바꿔 CPU 및 디스플레이 엔진의 렌더링 접근을 막는다.
 
@@ -100,6 +104,7 @@ void getWifiConnection() {
           if (strncmp(ap.ssid, "melonAP", 7) == 0) // connect to 'melonAP' when using melonDS
           {
               // If there is only one AP, connect to it
+              // Wifi_SetIP(0, 0, 0, 0, 0);
               printf("Connecting to %s...\n", ap.ssid);
               Wifi_ConnectAP(&ap, WEPMODE_NONE, 0, 0);
               break;
@@ -116,11 +121,42 @@ void getWifiConnection() {
               scanKeys();
               if (keysDown() & KEY_A)
               {
+                  // Wifi_SetIP(0, 0, 0, 0, 0);
                   Wifi_GetAPData(0, &ap);
                   Wifi_ConnectAP(&ap, WEPMODE_NONE, 0, 0);
                   break;
               }
           }
+      }
+  }
+  while (1)
+  {
+      swiWaitForVBlank();
+  
+      int status = Wifi_AssocStatus();
+      
+      if (status == ASSOCSTATUS_CANNOTCONNECT)
+      {
+          // We can't connect to this host, try to connect to a different one!
+          printf("Cannot connect to the host. Reboot the device to retry...\n");
+      }
+      
+      if (status == ASSOCSTATUS_ASSOCIATED)
+      {
+          // Success!
+          struct in_addr ip, gateway, mask, dns1, dns2;
+          ip = Wifi_GetIPInfo(&gateway, &mask, &dns1, &dns2);
+          
+          printf("\n");
+          printf("Connection information:\n");
+          printf("\n");
+          printf("IP:      %s\n", inet_ntoa(ip));
+          printf("Gateway: %s\n", inet_ntoa(gateway));
+          printf("Mask:    %s\n", inet_ntoa(mask));
+          printf("DNS1:    %s\n", inet_ntoa(dns1));
+          printf("DNS2:    %s\n", inet_ntoa(dns2));
+          printf("\n");
+          break;
       }
   }
 }

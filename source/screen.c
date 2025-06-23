@@ -368,7 +368,7 @@ SCR_Init
 ==================
 */
 void SCR_Init (void)
-{
+{ 
 	Cvar_RegisterVariable (&scr_fov);
 	Cvar_RegisterVariable (&scr_viewsize);
 	Cvar_RegisterVariable (&scr_conspeed);

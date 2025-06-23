@@ -184,7 +184,7 @@ R_Init
 ===============
 */
 void R_Init (void)
-{
+{ 
 	int		dummy;
 	
 // get stack position so we can guess if we are going to overflow

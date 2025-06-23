@@ -188,7 +188,7 @@ void CL_SendConnectPacket (void)
 
 	if (cls.state != ca_disconnected)
 		return;
-
+  printf("sending connect packet to %s\n", cls.servername);
 	t1 = Sys_DoubleTime ();
 
 	if (!NET_StringToAdr (cls.servername, &adr))
@@ -204,7 +204,7 @@ void CL_SendConnectPacket (void)
 		connect_time = -1;
 		return;
 	}
-
+  printf("connect to %s\n", NET_AdrToString(adr));
 	if (adr.port == 0)
 		adr.port = BigShort (27500);
 	t2 = Sys_DoubleTime ();
@@ -265,6 +265,7 @@ void CL_CheckForResend (void)
 	Con_Printf ("Connecting to %s...\n", cls.servername);
 	sprintf (data, "%c%c%c%cgetchallenge\n", 255, 255, 255, 255);
 	NET_SendPacket (strlen(data), data, adr);
+  printf("packet sent to %s\n", NET_AdrToString(adr));
 }
 
 void CL_BeginServerConnect(void)
@@ -1308,6 +1309,7 @@ Runs all active servers
 int		nopacketcount;
 void Host_Frame (float time)
 {
+  printf("Host_Frame called with time: %f\n", time);
 	static double		time1 = 0;
 	static double		time2 = 0;
 	static double		time3 = 0;
@@ -1315,7 +1317,7 @@ void Host_Frame (float time)
 	float fps;
 	if (setjmp (host_abort) )
 		return;			// something bad happened, or the server disconnected
-
+  printf("Starting Host_Frame\n");
 	// decide the simulation time
 	realtime += time;
 	if (oldrealtime > realtime)
@@ -1328,49 +1330,49 @@ void Host_Frame (float time)
 
 	if (!cls.timedemo && realtime - oldrealtime < 1.0/fps)
 		return;			// framerate is too high
-
+  
 	host_frametime = realtime - oldrealtime;
 	oldrealtime = realtime;
 	if (host_frametime > 0.2)
 		host_frametime = 0.2;
-		
+	printf("fps counted\n");
 	// get new key events
 	Sys_SendKeyEvents ();
-
+  printf("sent Key Event\n");
 	// allow mice or other external controllers to add commands
 	IN_Commands ();
-
+  printf("proceessed additional input commands\n");
 	// process console commands
 	Cbuf_Execute ();
-
+  printf("executed console commands\n");
 	// fetch results from server
 	CL_ReadPackets ();
-
+  printf("server packets fetched\n");
 	// send intentions now
 	// resend a connection request if necessary
 	if (cls.state == ca_disconnected) {
 		CL_CheckForResend ();
 	} else
 		CL_SendCmd ();
-
+  printf("sent client packets to server\n");
 	// Set up prediction for other players
 	CL_SetUpPlayerPrediction(false);
-
+  printf("Disable player prediction for movement processing\n");
 	// do client side motion prediction
 	CL_PredictMove ();
-
+  printf("predicted client motion\n");
 	// Set up prediction for other players
 	CL_SetUpPlayerPrediction(true);
-
+  printf("Enabled player prediction again\n");
 	// build a refresh entity list
 	CL_EmitEntities ();
-
+  printf("Emitted entities\n");
 	// update video
 	if (host_speeds.value)
 		time1 = Sys_DoubleTime ();
 
 	SCR_UpdateScreen ();
-
+  printf("Screen updated\n");
 	if (host_speeds.value)
 		time2 = Sys_DoubleTime ();
 		
@@ -1384,7 +1386,7 @@ void Host_Frame (float time)
 		S_Update (vec3_origin, vec3_origin, vec3_origin, vec3_origin);
 	
 	CDAudio_Update();
-
+  printf("Audio updated\n");
 	if (host_speeds.value)
 	{
 		pass1 = (time1 - time3)*1000;
@@ -1431,42 +1433,42 @@ void Host_Init (quakeparms_t *parms)
 
 	host_parms = *parms;
 
-  printf("Ininitializing memory for client...\n");
+  //printf("Ininitializing memory for client...\n");
   printf("Memory base: %p, Memory size: %d\n", parms->membase, parms->memsize);
 	Memory_Init (parms->membase, parms->memsize);
 	Cbuf_Init ();
-  printf("Memory initialized. Initializing Commands...\n");
+  //printf("Memory initialized. Initializing Commands...\n");
 	Cmd_Init ();
 	V_Init ();
-  printf("Console command initialized. Initiating Device System...\n");
+  //printf("Console command initialized. Initiating Device System...\n");
 	COM_Init ();
 	Host_FixupModelNames();
-	printf("Device System initialized. Initiating Network communication...\n");
+	//printf("Device System initialized. Initiating Network communication...\n");
 	NET_Init (PORT_CLIENT);
 	Netchan_Init ();
-  printf("Network communication initialized. Load UI textures...\n");
+  //printf("Network communication initialized. Load UI textures...\n");
 	W_LoadWadFile ("gfx.wad");
-  printf("UI initialized. Initiating Key System...\n");
+  //printf("UI initialized. Initiating Key System...\n");
 	Key_Init ();
-  printf("Key System initialized. Initiating Console...\n");
+  //printf("Key System initialized. Initiating Console...\n");
 	Con_Init ();	
-  printf("Key System initialized. Initiating Main menu...\n");
+  //printf("Key System initialized. Initiating Main menu...\n");
 	M_Init ();	
-  printf("Main menu initialized. Listing Mod...\n");
+  //printf("Main menu initialized. Init model system...\n");
 	Mod_Init ();
 	
 //	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 	Con_Printf ("%4.1f megs RAM used.\n",parms->memsize/ (1024*1024.0));
 	
 	R_InitTextures ();
-  printf("Textures initialized. Loading base palette and colormap...\n");
+  //printf("Textures initialized. Loading base palette and colormap...\n");
 	host_basepal = (byte *)COM_LoadHunkFile ("gfx/palette.lmp");
 	if (!host_basepal)
 		Sys_Error ("Couldn't load gfx/palette.lmp");
 	host_colormap = (byte *)COM_LoadHunkFile ("gfx/colormap.lmp");
 	if (!host_colormap)
 		Sys_Error ("Couldn't load gfx/colormap.lmp");
-  printf("Base palette and colormap loaded.\n");
+  //printf("Base palette and colormap loaded.\n");
 #ifdef __linux__ // TODO: what sequence is best for NDS?
 	IN_Init ();
 	CDAudio_Init ();
@@ -1486,9 +1488,6 @@ void Host_Init (quakeparms_t *parms)
 	SCR_Init ();
 	R_Init ();
 //	S_Init ();		// S_Init is now done as part of VID. Sigh.
-#ifdef GLQUAKE
-	S_Init();
-#endif
 
 	cls.state = ca_disconnected;
 	CDAudio_Init ();
@@ -1496,7 +1495,7 @@ void Host_Init (quakeparms_t *parms)
 	CL_Init ();
 	IN_Init ();
 #endif
-  printf("Almost done. executing QuakeWorld engine...\n");
+  //printf("Almost done. executing QuakeWorld engine...\n");
 
 	Cbuf_InsertText ("exec quake.rc\n");
 	Cbuf_AddText ("echo Type connect <internet address> inside config.cfg to connect to a game.\n");
@@ -1507,9 +1506,9 @@ void Host_Init (quakeparms_t *parms)
 
 	host_initialized = true;
 
-	Con_Printf ("\nClient Version %4.2f (Build %04d)\n\n", VERSION, build_number());
+	//Con_Printf ("\nClient Version %4.2f (Build %04d)\n\n", VERSION, build_number());
 
-	Con_Printf ("QuakeWorld engine Initialized");	
+	Con_Printf ("QuakeWorld engine Initialized\n");	
 }
 
 

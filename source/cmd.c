@@ -145,7 +145,7 @@ void Cbuf_Execute (void)
 	char	*text;
 	char	line[1024];
 	int		quotes;
-	
+	printf("cmd_text.cursize: %d\n", cmd_text.cursize); // Debug output to see the size of the command buffer
 	while (cmd_text.cursize)
 	{
 // find a \n or ; line break
@@ -178,10 +178,10 @@ void Cbuf_Execute (void)
 			cmd_text.cursize -= i;
 			Q_memcpy (text, text+i, cmd_text.cursize);
 		}
-
+    printf("Executing: %s\n", line); // Debug output to see the command being executed
 // execute the command line
 		Cmd_ExecuteString (line);
-		
+		printf("Executed: %s\n", line); // Debug output to see the command being executed
 		if (cmd_wait)
 		{	// skip out while text still remains in buffer, leaving it
 			// for next frame
@@ -672,10 +672,11 @@ void	Cmd_ExecuteString (char *text)
 // execute the command line
 	if (!Cmd_Argc())
 		return;		// no tokens
-
+  
 // check functions
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
+    // printf("Checking command: %s\n", cmd->name); // Debug output to see the command being checked
 		if (!Q_strcasecmp (cmd_argv[0],cmd->name))
 		{
 			if (!cmd->function)

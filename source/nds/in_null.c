@@ -1,6 +1,7 @@
 // in_null.c -- for systems without a mouse
 
 #include "quakedef.h"
+#include <nds.h>
 
 cvar_t _windowed_mouse = {"_windowed_mouse", "0", true}; // for compatibility
 

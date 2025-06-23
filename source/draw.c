@@ -108,7 +108,7 @@ Draw_Init
 ===============
 */
 void Draw_Init (void)
-{
+{ 
 	draw_chars = W_GetLumpName ("conchars");
 	draw_disc = W_GetLumpName ("disc");
 	draw_backtile = W_GetLumpName ("backtile");
