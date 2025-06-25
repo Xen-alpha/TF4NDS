@@ -204,7 +204,7 @@ void CL_SendConnectPacket (void)
 		connect_time = -1;
 		return;
 	}
-  printf("connect to %s\n", NET_AdrToString(adr));
+  printf("connect to %s\n", NET_AdrToString(adr)); 
 	if (adr.port == 0)
 		adr.port = BigShort (27500);
 	t2 = Sys_DoubleTime ();
@@ -1315,7 +1315,7 @@ Runs all active servers
 int		nopacketcount;
 void Host_Frame (float time)
 {
-  printf("Host_Frame called with time: %f\n", time);
+  // printf("Host_Frame called with time: %f\n", time);
 	static double		time1 = 0;
 	static double		time2 = 0;
 	static double		time3 = 0;
@@ -1323,7 +1323,7 @@ void Host_Frame (float time)
 	float fps;
 	if (setjmp (host_abort) )
 		return;			// something bad happened, or the server disconnected
-  printf("Starting Host_Frame\n");
+  // printf("Starting Host_Frame\n");
 	// decide the simulation time
 	realtime += time;
 	if (oldrealtime > realtime)
@@ -1341,16 +1341,18 @@ void Host_Frame (float time)
 	oldrealtime = realtime;
 	if (host_frametime > 0.2)
 		host_frametime = 0.2;
-	printf("fps counted\n");
+	//printf("fps counted\n");
 	// get new key events
 	Sys_SendKeyEvents ();
-  printf("sent Key Event\n");
+  //printf("sent Key Event\n");
 	// allow mice or other external controllers to add commands
 	IN_Commands ();
-  printf("proceessed additional input commands\n");
+  //printf("proceessed additional input commands\n");
 	// process console commands
 	Cbuf_Execute ();
   printf("executed console commands\n");
+  // TODO: re-enable below
+  /*
 	// fetch results from server
 	CL_ReadPackets ();
   printf("server packets fetched\n");
@@ -1361,6 +1363,7 @@ void Host_Frame (float time)
 	} else
 		CL_SendCmd ();
   printf("sent client packets to server\n");
+  */
 	// Set up prediction for other players
 	CL_SetUpPlayerPrediction(false);
   printf("Disable player prediction for movement processing\n");
@@ -1440,7 +1443,7 @@ void Host_Init (quakeparms_t *parms)
 	host_parms = *parms;
 
   //printf("Ininitializing memory for client...\n");
-  printf("Memory base: %p, Memory size: %d\n", parms->membase, parms->memsize);
+  //printf("Memory base: %p, Memory size: %d\n", parms->membase, parms->memsize);
 	Memory_Init (parms->membase, parms->memsize);
 	Cbuf_Init ();
   //printf("Memory initialized. Initializing Commands...\n");
@@ -1463,8 +1466,8 @@ void Host_Init (quakeparms_t *parms)
   //printf("Main menu initialized. Init model system...\n");
 	Mod_Init ();
 	
-//	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
-	Con_Printf ("%4.1f megs RAM used.\n",parms->memsize/ (1024*1024.0));
+  //	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
+	// Con_Printf ("%4.1f megs RAM used.\n",parms->memsize/ (1024*1024.0));
 	
 	R_InitTextures ();
   //printf("Textures initialized. Loading base palette and colormap...\n");
@@ -1514,7 +1517,7 @@ void Host_Init (quakeparms_t *parms)
 
 	//Con_Printf ("\nClient Version %4.2f (Build %04d)\n\n", VERSION, build_number());
 
-	Con_Printf ("QuakeWorld engine Initialized\n");	
+	// Con_Printf ("QuakeWorld engine Initialized\n");	
 }
 
 

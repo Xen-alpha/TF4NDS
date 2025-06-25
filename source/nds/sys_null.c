@@ -136,7 +136,7 @@ void quake_main (int argc, char **argv)
 
 	parms.memsize = remaining_memory;
 	
-  printf("Setting memory base to %p, size: %d\n", parms.membase, parms.memsize);
+  // printf("Setting memory base to %p, size: %d\n", parms.membase, parms.memsize);
 	parms.basedir = "nitro:";
 
 	COM_InitArgv (argc, argv);
@@ -144,9 +144,9 @@ void quake_main (int argc, char **argv)
 	parms.argc = com_argc;
 	parms.argv = com_argv;
 
-	printf ("Host_Init\n");
+	//printf ("Host_Init\n");
 	Host_Init (&parms);
-  printf ("Entering Host_Frame...\n");
+  //printf ("Entering Host_Frame...\n");
 	while (1)
 	{
 		Host_Frame (0.1);

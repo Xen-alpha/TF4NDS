@@ -233,7 +233,7 @@ void Con_Init (void)
 	con_linewidth = -1;
 	Con_CheckResize ();
 	
-	Con_Printf ("Console initialized.\n");
+	// on_Printf ("Console initialized.\n"); // TODO: re-enable this
 
 //
 // register our commands

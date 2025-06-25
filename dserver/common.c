@@ -1120,18 +1120,20 @@ void COM_CheckRegistered (void)
 
 	COM_FOpenFile("gfx/pop.lmp", &h);
 	static_registered = 0;
-
+  
 	if (!h)
 	{
-		Con_Printf ("Playing shareware version.\n");
+		// Con_Printf ("Playing shareware version.\n");
 #ifndef SERVERONLY
 // FIXME DEBUG -- only temporary
 		if (com_modified)
 			Sys_Error ("You must have the registered version to play QuakeWorld");
 #endif
+    Cvar_Set ("registered", "1");
+    static_registered = 1;
 		return;
 	}
-
+  
 	fread (check, 1, sizeof(check), h);
 	fclose (h);
 	
@@ -1141,7 +1143,7 @@ void COM_CheckRegistered (void)
 	
 	Cvar_Set ("registered", "1");
 	static_registered = 1;
-	Con_Printf ("Playing registered version.\n");
+	// Con_Printf ("Playing registered version.\n");
 }
 
 
@@ -1500,7 +1502,7 @@ int COM_FOpenFile (char *filename, FILE **file)
 			for (i=0 ; i<pak->numfiles ; i++)
 				if (!strcmp (pak->files[i].name, filename))
 				{	// found it!
-					Sys_Printf ("PackFile: %s : %s\n",pak->filename, filename);
+					// Sys_Printf ("PackFile: %s : %s\n",pak->filename, filename); // TODO: re-enable this
 				// open a new file on the pakfile
 					*file = fopen (pak->filename, "rb");
 					if (!*file)

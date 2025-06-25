@@ -36,13 +36,22 @@ int main(int argc, char **argv)
     vramSetBankH(VRAM_H_SUB_BG);      // 하단 BG
     vramSetBankI(VRAM_I_LCD);     // 버퍼 용도로 바꿔 CPU 및 디스플레이 엔진의 렌더링 접근을 막는다.
 
-    Wifi_InitDefault(INIT_ONLY);
+    if (Wifi_InitDefault(INIT_ONLY))
+    {
+        printf("Wifi initialized successfully\n");
+    }
+    else
+    {
+        printf("Failed to initialize Wifi\n");
+        while (1)
+          swiWaitForVBlank();
+    }
     
     // Bank H에 할당된 VRAM을 하단 스크린에 할당
     videoSetModeSub(MODE_0_2D);
 
     REG_BG0CNT_SUB = BG_MAP_BASE(2) | BG_TILE_BASE(0) | BG_PRIORITY(0);
-
+ 
     consoleInit(NULL, 0, BgType_Text4bpp, BgSize_T_256x256, 2, 0, false, true);
 
     // Initialize NitroFS
@@ -56,7 +65,7 @@ int main(int argc, char **argv)
     }
     
     // Setup done
-    printf("Device Initialized\n");
+    //printf("Device Initialized\n");
     // ==========
     getWifiConnection();
 
@@ -104,7 +113,6 @@ void getWifiConnection() {
           if (strncmp(ap.ssid, "melonAP", 7) == 0) // connect to 'melonAP' when using melonDS
           {
               // If there is only one AP, connect to it
-              // Wifi_SetIP(0, 0, 0, 0, 0);
               printf("Connecting to %s...\n", ap.ssid);
               Wifi_ConnectAP(&ap, WEPMODE_NONE, 0, 0);
               break;
@@ -149,13 +157,15 @@ void getWifiConnection() {
           
           printf("\n");
           printf("Connection information:\n");
-          printf("\n");
           printf("IP:      %s\n", inet_ntoa(ip));
           printf("Gateway: %s\n", inet_ntoa(gateway));
           printf("Mask:    %s\n", inet_ntoa(mask));
           printf("DNS1:    %s\n", inet_ntoa(dns1));
-          printf("DNS2:    %s\n", inet_ntoa(dns2));
-          printf("\n");
+          //printf("DNS2:    %s\n", inet_ntoa(dns2));
+          // Wifi_SetIP(0, 0xC0A80101, 0xFFFFFF00, 0, 0); 
+          // Wifi_SetIP((3 << 24) + (168 << 8) + 192, 0xC0A80101, 0xFFFFFF00, (1 << 24) + (1 << 16) + (1 << 8) + 1, 0);
+          Wifi_Sync();
+          Wifi_Update();
           break;
       }
   }

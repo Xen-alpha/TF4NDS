@@ -1692,7 +1692,7 @@ pack_t *COM_LoadPackFile (char *packfile)
 	pack->numfiles = numpackfiles;
 	pack->files = newfiles;
 	
-	Con_Printf ("Added packfile %s (%i files)\n", packfile, numpackfiles);
+	// Con_Printf ("Added packfile %s (%i files)\n", packfile, numpackfiles);
 	return pack;
 }
 

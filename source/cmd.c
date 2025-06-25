@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cmd.c -- Quake script command processing module
 
 #include "quakedef.h"
+#include <nds.h>
 
 void Cmd_ForwardToServer (void);
 
@@ -63,7 +64,7 @@ void Cmd_Wait_f (void)
 */
 
 sizebuf_t	cmd_text;
-byte		cmd_text_buf[8192];
+byte		cmd_text_buf[16384];
 
 /*
 ============
@@ -145,7 +146,7 @@ void Cbuf_Execute (void)
 	char	*text;
 	char	line[1024];
 	int		quotes;
-	printf("cmd_text.cursize: %d\n", cmd_text.cursize); // Debug output to see the size of the command buffer
+	// printf("cmd_text.cursize: %d\n", cmd_text.cursize); // Debug output to see the size of the command buffer
 	while (cmd_text.cursize)
 	{
 // find a \n or ; line break
@@ -178,10 +179,10 @@ void Cbuf_Execute (void)
 			cmd_text.cursize -= i;
 			Q_memcpy (text, text+i, cmd_text.cursize);
 		}
-    printf("Executing: %s\n", line); // Debug output to see the command being executed
+    //printf("Executing: %s\n", line); // Debug output to see the command being executed
 // execute the command line
 		Cmd_ExecuteString (line);
-		printf("Executed: %s\n", line); // Debug output to see the command being executed
+		//printf("Executed: %s\n", line); // Debug output to see the command being executed
 		if (cmd_wait)
 		{	// skip out while text still remains in buffer, leaving it
 			// for next frame

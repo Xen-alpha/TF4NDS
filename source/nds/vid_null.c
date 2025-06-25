@@ -48,7 +48,7 @@ void	VID_Shutdown (void)
 {
 }
 
-void	VID_Update (vrect_t *rects)
+void volatile VID_Update (vrect_t *rects)
 {
   dmaCopy(VRAM_D, vid.buffer, BASEWIDTH * BASEHEIGHT);
   // we don't need to do anything since VID_UnlockBuffer will copy the

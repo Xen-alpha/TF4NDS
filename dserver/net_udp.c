@@ -53,8 +53,8 @@ int			net_send_socket;	// blocking, for sends
 #define	MAX_UDP_PACKET	8192
 byte		net_message_buffer[MAX_UDP_PACKET];
 
-int gethostname (char *, int);
-int close (int);
+//int gethostname (char *, int);
+//int close (int);
 
 //=============================================================================
 
@@ -221,6 +221,7 @@ void NET_SendPacket (int length, void *data, netadr_t to)
 	NetadrToSockadr (&to, &addr);
 
 	ret = sendto (net_socket, data, length, 0, (struct sockaddr *)&addr, sizeof(addr) );
+  
 	if (ret == -1) {
 		if (errno == EWOULDBLOCK)
 			return;
@@ -269,6 +270,7 @@ void NET_GetLocalAddress (void)
 
 	gethostname(buff, MAXHOSTNAMELEN);
 	buff[MAXHOSTNAMELEN-1] = 0;
+  printf("NET_Hostname: %s\n", buff);
 
 	NET_StringToAdr (buff, &net_local_adr);
 

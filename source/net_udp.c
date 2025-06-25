@@ -55,10 +55,10 @@ int			net_socket;			// non blocking, for receives
 int			net_send_socket;	// blocking, for sends
 
 #define	MAX_UDP_PACKET	8192
-byte		net_message_buffer[MAX_UDP_PACKET];
+DTCM_BSS byte		net_message_buffer[MAX_UDP_PACKET];
 
-// int gethostname (char *, int);
-int close (int);
+//int gethostname (char *, int);
+//int close (int);
 
 //=============================================================================
 
@@ -222,9 +222,18 @@ void NET_SendPacket (int length, void *data, netadr_t to)
 	int ret;
 	struct sockaddr_in	addr;
 
+  //printf("IP address from integer: %ld.%ld.%ld.%ld\n",
+  //        Wifi_GetIP() & 0xFF,
+  //       (Wifi_GetIP() >> 8) & 0xFF,
+  //       (Wifi_GetIP() >> 16) & 0xFF,
+  //       (Wifi_GetIP() >> 24) & 0xFF
+  //       );
+
 	NetadrToSockadr (&to, &addr);
   printf("NET_SendPacket: %s\n", NET_AdrToString(to));
 	ret = sendto (net_socket, data, length, 0, (struct sockaddr *)&addr, sizeof(addr) );
+  Wifi_Update();
+  printf("NET_Response: %d\n", ret);
 	if (ret == -1) {
 		if (errno == EWOULDBLOCK){
       Sys_Printf ("NET_SendPacket: EWOULDBLOCK\n");
@@ -269,7 +278,7 @@ int UDP_OpenSocket (int port)
 	return newsocket;
 }
 
-#define MAXHOSTNAMELEN DSWIFI_BEACON_NAME_SIZE
+#define MAXHOSTNAMELEN 64
 
 void NET_GetLocalAddress (void)
 {
@@ -279,7 +288,7 @@ void NET_GetLocalAddress (void)
 
 	gethostname(buff, MAXHOSTNAMELEN);
 	buff[MAXHOSTNAMELEN-1] = 0;
-
+  printf("NET_Hostname: %s\n", buff);
 	NET_StringToAdr (buff, &net_local_adr);
 
 	namelen = sizeof(address);
@@ -297,6 +306,7 @@ NET_Init
 */
 void NET_Init (int port)
 {
+  Wifi_Update();
 	//
 	// open the single socket to be used for all communications
 	//
@@ -313,7 +323,7 @@ void NET_Init (int port)
 	//
 	NET_GetLocalAddress ();
 
-	Con_Printf("UDP Initialized\n");
+	// Con_Printf("UDP Initialized\n"); // TODO: re-enable this
 }
 
 /*

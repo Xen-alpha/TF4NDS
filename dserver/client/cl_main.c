@@ -262,7 +262,7 @@ void CL_CheckForResend (void)
 
 	connect_time = realtime+t2-t1;	// for retransmit requests
 
-	Con_Printf ("Connecting to %s...\n", cls.servername);
+	// Con_Printf ("Connecting to %s...\n", cls.servername);
 	sprintf (data, "%c%c%c%cgetchallenge\n", 255, 255, 255, 255);
 	NET_SendPacket (strlen(data), data, adr);
 }
