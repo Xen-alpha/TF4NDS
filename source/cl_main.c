@@ -1352,7 +1352,7 @@ void Host_Frame (float time)
 	Cbuf_Execute ();
   printf("executed console commands\n");
   // TODO: re-enable below
-  /*
+  
 	// fetch results from server
 	CL_ReadPackets ();
   printf("server packets fetched\n");
@@ -1363,7 +1363,7 @@ void Host_Frame (float time)
 	} else
 		CL_SendCmd ();
   printf("sent client packets to server\n");
-  */
+  
 	// Set up prediction for other players
 	CL_SetUpPlayerPrediction(false);
   printf("Disable player prediction for movement processing\n");
@@ -1453,8 +1453,8 @@ void Host_Init (quakeparms_t *parms)
 	COM_Init ();
 	Host_FixupModelNames();
 	//printf("Device System initialized. Initiating Network communication...\n");
-	//NET_Init (PORT_CLIENT);
-	//Netchan_Init ();
+	NET_Init (PORT_CLIENT);
+	Netchan_Init ();
   //printf("Network communication initialized. Load UI textures...\n");
 	W_LoadWadFile ("gfx.wad");
   //printf("UI initialized. Initiating Key System...\n");

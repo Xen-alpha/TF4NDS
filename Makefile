@@ -51,7 +51,7 @@ ARM7ELF		?= $(BLOCKSDS)/sys/arm7/main_core/arm7_dswifi_maxmod.elf
 LIBS		?= -ldswifi9 -lmm9 -lnds9
 LIBDIRS	+= $(BLOCKSDS)/libs/dswifi \
            	$(BLOCKSDS)/libs/maxmod \
-						$(BLOCKSDS)/libs/libnds
+			$(BLOCKSDS)/libs/libnds
 
 # Build artifacts
 # ---------------
