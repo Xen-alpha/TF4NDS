@@ -1453,8 +1453,8 @@ void Host_Init (quakeparms_t *parms)
 	COM_Init ();
 	Host_FixupModelNames();
 	//printf("Device System initialized. Initiating Network communication...\n");
-	NET_Init (PORT_CLIENT);
-	Netchan_Init ();
+	//NET_Init (PORT_CLIENT);
+	//Netchan_Init ();
   //printf("Network communication initialized. Load UI textures...\n");
 	W_LoadWadFile ("gfx.wad");
   //printf("UI initialized. Initiating Key System...\n");

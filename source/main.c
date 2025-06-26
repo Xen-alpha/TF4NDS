@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     vramSetBankH(VRAM_H_SUB_BG);      // 하단 BG
     vramSetBankI(VRAM_I_LCD);     // 버퍼 용도로 바꿔 CPU 및 디스플레이 엔진의 렌더링 접근을 막는다.
 
-    if (Wifi_InitDefault(INIT_ONLY))
+    if (Wifi_InitDefault(WFC_CONNECT))
     {
         printf("Wifi initialized successfully\n");
     }
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     // Setup done
     //printf("Device Initialized\n");
     // ==========
-    getWifiConnection();
+    // getWifiConnection();
 
     // Main game loop
     quake_main(argc, argv);
@@ -78,8 +78,9 @@ int main(int argc, char **argv)
 
 void getWifiConnection() {
   // Set the library in scan mode
-  Wifi_ScanMode();
-  printf("Scanning for WiFi networks...\n");
+  // Wifi_ScanMode();
+  printf("Get Ip connection...\n");
+  /*
   while (1)
   {
       swiWaitForVBlank();
@@ -137,6 +138,7 @@ void getWifiConnection() {
           }
       }
   }
+  */
   while (1)
   {
       swiWaitForVBlank();

@@ -266,15 +266,19 @@ int UDP_OpenSocket (int port)
 		address.sin_addr.s_addr = inet_addr(com_argv[i+1]);
 		Con_Printf("Binding to IP Interface Address of %s\n",
 				inet_ntoa(address.sin_addr));
-	} else
-		address.sin_addr.s_addr = INADDR_ANY;
+	} else{
+#if 0
+    address.sin_addr.s_addr = INADDR_ANY;
+#endif
+    address.sin_addr.s_addr = Wifi_GetIP(); // This is the thing NDS needs
+  }
+		
 	if (port == PORT_ANY)
 		address.sin_port = 0;
 	else
-		address.sin_port = htons((short)port);
+		address.sin_port = htons((unsigned short) port);
 	if( bind (newsocket, (void *)&address, sizeof(address)) == -1)
 		Sys_Error ("UDP_OpenSocket: bind: %s", strerror(errno));
-
 	return newsocket;
 }
 
@@ -282,11 +286,13 @@ int UDP_OpenSocket (int port)
 
 void NET_GetLocalAddress (void)
 {
+  // TODO: Use Wifi_GetIP to set my IP
 	char	buff[MAXHOSTNAMELEN];
 	struct sockaddr_in	address;
 	int		namelen;
 
-	gethostname(buff, MAXHOSTNAMELEN);
+	if (gethostname(buff, MAXHOSTNAMELEN))
+    Sys_Error("Failed to Fetch Hostname\n");
 	buff[MAXHOSTNAMELEN-1] = 0;
   printf("NET_Hostname: %s\n", buff);
 	NET_StringToAdr (buff, &net_local_adr);
@@ -306,12 +312,12 @@ NET_Init
 */
 void NET_Init (int port)
 {
-  Wifi_Update();
+  // Wifi_Update();
 	//
 	// open the single socket to be used for all communications
 	//
 	net_socket = UDP_OpenSocket (port);
-
+  // printf("my net socket: %d\n", net_socket);
 	//
 	// init the message buffer
 	//
@@ -323,7 +329,7 @@ void NET_Init (int port)
 	//
 	NET_GetLocalAddress ();
 
-	// Con_Printf("UDP Initialized\n"); // TODO: re-enable this
+	Con_Printf("UDP Initialized\n"); // TODO: re-enable this
 }
 
 /*
