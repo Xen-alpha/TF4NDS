@@ -291,7 +291,7 @@ void NET_GetLocalAddress (void)
 	struct sockaddr_in	address;
 	int		namelen;
 
-	if (gethostname(buff, MAXHOSTNAMELEN))
+	if (gethostname(buff, MAXHOSTNAMELEN) < 0)
     Sys_Error("Failed to Fetch Hostname\n");
 	buff[MAXHOSTNAMELEN-1] = 0;
   printf("NET_Hostname: %s\n", buff);
