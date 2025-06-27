@@ -3,3 +3,5 @@
 build
 unused
 .vscode
+
+include/config.h

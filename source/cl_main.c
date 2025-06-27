@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 #include <stdio.h>
+#include <ctype.h>
 #if 0
 //#include "winquake.h"
 //#include <netinet/in.h>
@@ -267,6 +268,7 @@ void CL_CheckForResend (void)
 	sprintf (data, "%c%c%c%cgetchallenge\n", 255, 255, 255, 255);
 	NET_SendPacket (strlen(data), data, adr);
   printf("packet sent to %s\n", NET_AdrToString(adr));
+  Sys_Sleep();
 }
 
 void CL_BeginServerConnect(void)
@@ -293,10 +295,11 @@ void CL_Connect_f (void)
 	
 	server = Cmd_Argv (1);
 
-	CL_Disconnect();
-
+	CL_Disconnect ();
+  printf("Client is disconnected, connect to %s\n", server);
 	strncpy (cls.servername, server, sizeof(cls.servername)-1);
 	CL_BeginServerConnect();
+  printf("Connected!\n");
 }
 
 
@@ -410,10 +413,10 @@ void CL_Disconnect (void)
 	byte	final[10];
 
 	connect_time = -1;
-
+  printf("Starting Disconnection.\n");
 // stop sounds (especially looping!)
 	S_StopAllSounds (true);
-	
+	printf("Stopped All Sounds\n");
 // if running a local server, shut it down
 	if (cls.demoplayback)
 		CL_StopPlayback ();
@@ -432,13 +435,10 @@ void CL_Disconnect (void)
 
 		cls.demoplayback = cls.demorecording = cls.timedemo = false;
 	}
+  printf("Reset demo\n");
 	Cam_Reset();
-
-	if (cls.download) {
-		fclose(cls.download);
-		cls.download = NULL;
-	}
-
+  printf("Reset camera");
+  printf("Downloading is already removed from this client\n");
 	CL_StopUpload();
 
 }
@@ -785,11 +785,6 @@ void CL_Reconnect_f (void)
 
 	CL_Disconnect();
 	CL_BeginServerConnect();
-}
-
-int isspace(char c)
-{
-  return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
 }
 
 #define IPADDR_LOOPBACK 0x7f000001 //
@@ -1321,9 +1316,11 @@ void Host_Frame (float time)
 	static double		time3 = 0;
 	int			pass1, pass2, pass3;
 	float fps;
-	if (setjmp (host_abort) )
-		return;			// something bad happened, or the server disconnected
-  // printf("Starting Host_Frame\n");
+	if (setjmp (host_abort) ) {
+    printf("Host_Abort\n"); // something bad happened, or the server disconnected
+    return;
+  }					
+  printf("Starting Host_Frame\n");
 	// decide the simulation time
 	realtime += time;
 	if (oldrealtime > realtime)
@@ -1344,18 +1341,20 @@ void Host_Frame (float time)
 	//printf("fps counted\n");
 	// get new key events
 	Sys_SendKeyEvents ();
-  //printf("sent Key Event\n");
 	// allow mice or other external controllers to add commands
 	IN_Commands ();
-  //printf("proceessed additional input commands\n");
+  printf("processed additional input commands\n");
+  Sys_Sleep();
 	// process console commands
 	Cbuf_Execute ();
   printf("executed console commands\n");
-  // TODO: re-enable below
+  Sys_Sleep();
+  // ~~TODO~~: re-enable below
   
 	// fetch results from server
 	CL_ReadPackets ();
   printf("server packets fetched\n");
+  Sys_Sleep();
 	// send intentions now
 	// resend a connection request if necessary
 	if (cls.state == ca_disconnected) {
@@ -1363,6 +1362,7 @@ void Host_Frame (float time)
 	} else
 		CL_SendCmd ();
   printf("sent client packets to server\n");
+  Sys_Sleep();
   
 	// Set up prediction for other players
 	CL_SetUpPlayerPrediction(false);
@@ -1376,12 +1376,14 @@ void Host_Frame (float time)
 	// build a refresh entity list
 	CL_EmitEntities ();
   printf("Emitted entities\n");
+  Sys_Sleep();
 	// update video
 	if (host_speeds.value)
 		time1 = Sys_DoubleTime ();
 
 	SCR_UpdateScreen ();
   printf("Screen updated\n");
+  Sys_Sleep();
 	if (host_speeds.value)
 		time2 = Sys_DoubleTime ();
 		
@@ -1445,26 +1447,41 @@ void Host_Init (quakeparms_t *parms)
   //printf("Ininitializing memory for client...\n");
   //printf("Memory base: %p, Memory size: %d\n", parms->membase, parms->memsize);
 	Memory_Init (parms->membase, parms->memsize);
+  //Sys_Sleep();
 	Cbuf_Init ();
   //printf("Memory initialized. Initializing Commands...\n");
 	Cmd_Init ();
-	V_Init ();
+  //Sys_Sleep();
+  V_Init ();
   //printf("Console command initialized. Initiating Device System...\n");
-	COM_Init ();
+  //Sys_Sleep();
+
+  COM_Init ();
 	Host_FixupModelNames();
-	//printf("Device System initialized. Initiating Network communication...\n");
+  //Sys_Sleep();
+
+	// printf("Device System initialized. Initiating Network communication...\n");
 	NET_Init (PORT_CLIENT);
 	Netchan_Init ();
+  //Sys_Sleep();
+
   //printf("Network communication initialized. Load UI textures...\n");
 	W_LoadWadFile ("gfx.wad");
   //printf("UI initialized. Initiating Key System...\n");
+  //Sys_Sleep();
+
 	Key_Init ();
   //printf("Key System initialized. Initiating Console...\n");
+  //Sys_Sleep();
+
 	Con_Init ();	
   //printf("Key System initialized. Initiating Main menu...\n");
+  //Sys_Sleep();
+
 	M_Init ();	
   //printf("Main menu initialized. Init model system...\n");
 	Mod_Init ();
+  //Sys_Sleep();
 	
   //	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 	// Con_Printf ("%4.1f megs RAM used.\n",parms->memsize/ (1024*1024.0));
@@ -1493,16 +1510,29 @@ void Host_Init (quakeparms_t *parms)
 	CL_Init ();
 #else
 	VID_Init (host_basepal);
+  //Sys_Sleep();
+  //printf("Video Initialized.\n");
 	Draw_Init ();
-	SCR_Init ();
-	R_Init ();
-//	S_Init ();		// S_Init is now done as part of VID. Sigh.
+  //printf("Canvas Drawing System initialized\n");
 
+	SCR_Init ();
+  //printf("Screen rendering system initialized\n");
+	R_Init ();
+//	S_Init ();		// TODO: S_Init needs to be initialized here
+  printf("render system initialization completed\n");
 	cls.state = ca_disconnected;
 	CDAudio_Init ();
+  //printf("CDAudio initialized\n");
+  //Sys_Sleep();
 	Sbar_Init ();
-	CL_Init ();
+  //printf("Sbar initialized\n");
+	//Sys_Sleep();
+  CL_Init ();
+  //printf("Client initialized\n");
+  //Sys_Sleep();
 	IN_Init ();
+  //printf("User input initialized\n");
+  //Sys_Sleep();
 #endif
   //printf("Almost done. executing QuakeWorld engine...\n");
 

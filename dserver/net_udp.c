@@ -140,13 +140,15 @@ qboolean	NET_StringToAdr (char *s, netadr_t *a)
 	
 	if (copy[0] >= '0' && copy[0] <= '9')
 	{
-		*(int *)&sadr.sin_addr = inet_addr(copy);
+		//*(int *)&
+    sadr.sin_addr = inet_addr(copy);
 	}
 	else
 	{
 		if (! (h = gethostbyname(copy)) )
 			return 0;
-		*(int *)&sadr.sin_addr = *(int *)h->h_addr_list[0];
+		//*(int *)&
+    sadr.sin_addr = inet_addr(h->h_addr_list[0]);
 	}
 	
 	SockadrToNetadr (&sadr, a);

@@ -47,6 +47,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <libc.h>
 #endif
 
+#include <config.h>
+
 netadr_t	net_local_adr;
 
 netadr_t	net_from;
@@ -67,15 +69,16 @@ void NetadrToSockadr (netadr_t *a, struct sockaddr_in *s)
 	memset (s, 0, sizeof(*s));
 	s->sin_family = AF_INET;
 
-	*(int *)&s->sin_addr = *(int *)&a->ip;
+	//*(int *)&s->sin_addr = *(int *)&a->ip;
+  memcpy(&s->sin_addr.s_addr,&a->ip, 4);
 	s->sin_port = a->port;
 }
 
 void SockadrToNetadr (struct sockaddr_in *s, netadr_t *a)
 {
-	*(int *)&a->ip = *(int *)&s->sin_addr;
+	memcpy(&a->ip, &s->sin_addr.s_addr, 4);
 	a->port = s->sin_port;
-}
+} 
 
 qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 {
@@ -144,13 +147,16 @@ qboolean	NET_StringToAdr (char *s, netadr_t *a)
 	
 	if (copy[0] >= '0' && copy[0] <= '9')
 	{
-		*(int *)&sadr.sin_addr = inet_addr(copy);
+		//*(int *)&sadr.sin_addr = inet_addr(copy);
+    sadr.sin_addr.s_addr = inet_addr(copy);
 	}
 	else
 	{
 		if (! (h = gethostbyname(copy)) )
 			return 0;
-		*(int *)&sadr.sin_addr = *(int *)h->h_addr_list[0];
+		//*(int *)&sadr.sin_addr = *(int *)h->h_addr_list[0];
+    printf("h_addr: %s\n", h->h_addr_list[0]);
+    sadr.sin_addr.s_addr = inet_addr(h->h_addr_list[0]);
 	}
 	
 	SockadrToNetadr (&sadr, a);
@@ -162,8 +168,8 @@ qboolean	NET_StringToAdr (char *s, netadr_t *a)
 // the IP is NOT one of our interfaces.
 qboolean NET_IsClientLegal(netadr_t *adr)
 {
-	struct sockaddr_in sadr;
-	int newsocket;
+	//struct sockaddr_in sadr;
+	//int newsocket;
 
 #if 0
 	if (adr->ip[0] == 127)
@@ -222,17 +228,12 @@ void NET_SendPacket (int length, void *data, netadr_t to)
 	int ret;
 	struct sockaddr_in	addr;
 
-  //printf("IP address from integer: %ld.%ld.%ld.%ld\n",
-  //        Wifi_GetIP() & 0xFF,
-  //       (Wifi_GetIP() >> 8) & 0xFF,
-  //       (Wifi_GetIP() >> 16) & 0xFF,
-  //       (Wifi_GetIP() >> 24) & 0xFF
-  //       );
-
+  printf("Changing Net Address to socket address...\n");
+  
 	NetadrToSockadr (&to, &addr);
   printf("NET_SendPacket: %s\n", NET_AdrToString(to));
-	ret = sendto (net_socket, data, length, 0, (struct sockaddr *)&addr, sizeof(addr) );
-  Wifi_Update();
+	Sys_Sleep();
+  ret = sendto (net_socket, data, length, 0, (struct sockaddr *)&addr, sizeof(addr) );
   printf("NET_Response: %d\n", ret);
 	if (ret == -1) {
 		if (errno == EWOULDBLOCK){
@@ -244,6 +245,7 @@ void NET_SendPacket (int length, void *data, netadr_t to)
       return;
     }
 		Sys_Printf ("NET_SendPacket: %s\n", strerror(errno));
+    Host_Error("NET_SendPacket: received unknown result %d", ret);
 	}
 }
 
@@ -270,7 +272,7 @@ int UDP_OpenSocket (int port)
 #if 0
     address.sin_addr.s_addr = INADDR_ANY;
 #endif
-    address.sin_addr.s_addr = Wifi_GetIP(); // This is the thing NDS needs
+    address.sin_addr = myip; // This is the thing NDS needs
   }
 		
 	if (port == PORT_ANY)
@@ -282,27 +284,36 @@ int UDP_OpenSocket (int port)
 	return newsocket;
 }
 
-#define MAXHOSTNAMELEN 64
+#define MAXHOSTNAMELEN 32
 
 void NET_GetLocalAddress (void)
 {
+  struct sockaddr_in	address;
+  address.sin_family = AF_INET;
+  address.sin_addr = myip;
+  address.sin_port = PORT_CLIENT;
+
+  int		namelen = MAXHOSTNAMELEN;
   // TODO: Use Wifi_GetIP to set my IP
+  /*
 	char	buff[MAXHOSTNAMELEN];
-	struct sockaddr_in	address;
+	
 	int		namelen;
 
-	if (gethostname(buff, MAXHOSTNAMELEN) < 0)
-    Sys_Error("Failed to Fetch Hostname\n");
+	gethostname(buff, MAXHOSTNAMELEN);
 	buff[MAXHOSTNAMELEN-1] = 0;
-  printf("NET_Hostname: %s\n", buff);
+  //printf("NET_Hostname: %s\n", buff);
 	NET_StringToAdr (buff, &net_local_adr);
 
 	namelen = sizeof(address);
 	if (getsockname (net_socket, (struct sockaddr *)&address, &namelen) == -1)
 		Sys_Error ("NET_Init: getsockname:", strerror(errno));
 	net_local_adr.port = address.sin_port;
-
-	Con_Printf("IP address %s\n", NET_AdrToString (net_local_adr) );
+  Con_Printf("Set loopback to %s\n", address.sin_addr.s_addr);
+  */
+  Con_Printf("Socket name: %s\n", getsockname (net_socket, (struct sockaddr *)&address, &namelen));
+	Con_Printf("Client IP address %s\n", inet_ntoa(myip) );
+  Sys_Sleep();
 }
 
 /*
@@ -321,6 +332,7 @@ void NET_Init (int port)
 	//
 	// init the message buffer
 	//
+  printf("Net_buffer: %dbyte\n", sizeof(net_message_buffer));
 	net_message.maxsize = sizeof(net_message_buffer);
 	net_message.data = net_message_buffer;
 
@@ -329,7 +341,7 @@ void NET_Init (int port)
 	//
 	NET_GetLocalAddress ();
 
-	Con_Printf("UDP Initialized\n"); // TODO: re-enable this
+	Con_Printf("UDP Initialized\n");
 }
 
 /*

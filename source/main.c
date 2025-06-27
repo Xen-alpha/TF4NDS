@@ -9,8 +9,12 @@
 #include <filesystem.h>
 #include <dswifi9.h>
 
+#include <config.h>
+
 void quake_main (int argc, char **argv);
 void getWifiConnection();
+
+struct in_addr myip, gateway, subnetmask, dns1, dns2;
 
 static Wifi_AccessPoint AccessPoint;
 
@@ -168,8 +172,6 @@ void connect_to_firmware_access_points(void)
     // IP settings have been loaded from flash
 }
 
-#define URL "DESKTOP-P8D41A5"
-
 void connect_to_other_access_points(void)
 {
     // Search for all available access points
@@ -226,7 +228,7 @@ void connect_to_other_access_points(void)
 }
 
 void getWifiConnection() {
-    const char *url = URL;
+    const char *url = SERVER_HOSTNAME;
     int quit = 0;
     while (!quit)
     {
@@ -323,15 +325,14 @@ void getWifiConnection() {
 
         // Get network information
 
-        struct in_addr ip, gateway, mask, dns1, dns2;
-        ip = Wifi_GetIPInfo(&gateway, &mask, &dns1, &dns2);
+        myip = Wifi_GetIPInfo(&gateway, &subnetmask, &dns1, &dns2);
 
         printf("\n");
         printf("Connection information:\n");
         printf("\n");
-        printf("IP:      %s\n", inet_ntoa(ip));
+        printf("IP:      %s\n", inet_ntoa(myip));
         printf("Gateway: %s\n", inet_ntoa(gateway));
-        printf("Mask:    %s\n", inet_ntoa(mask));
+        printf("Mask:    %s\n", inet_ntoa(subnetmask));
         printf("DNS1:    %s\n", inet_ntoa(dns1));
         printf("DNS2:    %s\n", inet_ntoa(dns2));
         printf("\n");

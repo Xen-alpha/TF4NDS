@@ -1510,12 +1510,13 @@ int COM_FOpenFile (char *filename, FILE **file)
 		else
 		{		
 	// check a file in the directory tree
+    /*
 			if (!static_registered)
 			{	// if not a registered version, don't ever go beyond base
 				if ( strchr (filename, '/') || strchr (filename,'\\'))
 					continue;
 			}
-			
+		*/
 			sprintf (netpath, "%s/%s",search->filename, filename);
 			
 			findtime = Sys_FileTime (netpath);

@@ -90,7 +90,7 @@ void Sys_Quit (void)
 
 double Sys_DoubleTime (void)
 {
-	static double t;
+	static double t; 
 	
 	t += 0.1;
 	
@@ -104,6 +104,15 @@ char *Sys_ConsoleInput (void)
 
 void Sys_Sleep (void)
 {
+  while (1)
+  {
+      swiWaitForVBlank();
+
+      scanKeys();
+      if (keysHeld() & KEY_X){
+        break;
+      }
+  }
 }
 
 void Sys_SendKeyEvents (void)
