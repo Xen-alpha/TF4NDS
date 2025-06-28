@@ -71,7 +71,7 @@ void SV_New_f (void)
 
 	gamedir = Info_ValueForKey (svs.info, "gamedir");
 	if (!gamedir[0])
-		gamedir = "qw";
+		gamedir = "id1";
 
 //NOTE:  This doesn't go through ClientReliableWrite since it's before the user
 //spawns.  These functions are written to not overflow

@@ -1110,7 +1110,7 @@ void COM_CheckRegistered (void)
 	FILE		*h;
 	unsigned short	check[128];
 	int			i;
-
+  /*
 	COM_FOpenFile("gfx/pop.lmp", &h);
 	static_registered = 0;
 
@@ -1131,7 +1131,7 @@ void COM_CheckRegistered (void)
 	for (i=0 ; i<128 ; i++)
 		if (pop[i] != (unsigned short)BigShort (check[i]))
 			Sys_Error ("Corrupted data file.");
-	
+	*/
 	Cvar_Set ("registered", "1");
 	static_registered = 1;
 	Con_Printf ("Playing registered version.\n");

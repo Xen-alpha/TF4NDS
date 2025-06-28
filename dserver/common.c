@@ -1793,7 +1793,7 @@ void COM_Gamedir (char *dir)
 	//
 	Cache_Flush ();
 
-	if ( !strcmp(dir,"fortress") || !strcmp(dir,"lq1") )
+	if ( !strcmp(dir,"qw") || !strcmp(dir,"id1") )
 		return;
 
 	sprintf (com_gamedir, "%s/%s", com_basedir, dir);
@@ -1844,7 +1844,7 @@ void COM_InitFilesystem (void)
 //
 // start up with id1 by default
 //
-	COM_AddGameDirectory (va("%s/lq1", com_basedir) );
+	COM_AddGameDirectory (va("%s/id1", com_basedir) );
 	COM_AddGameDirectory (va("%s/fortress", com_basedir) );
 
 	// any set gamedirs will be freed up to here
